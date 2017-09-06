@@ -1,0 +1,11 @@
+2017.1.0f3:2.2.0.0
+StandaloneWindows64
+E:/UNTIY/Editor/Data/Managed/UnityEditor.dll
+E:/UNTIY/Editor/Data/Managed/UnityEngine.dll
+E:/UNTIY/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll
+E:/UNTIY/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll
+E:/UNTIY/Editor/Data/UnityExtensions/Unity/TestRunner/UnityEngine.TestRunner.dll
+E:/UNTIY/Editor/Data/UnityExtensions/Unity/TestRunner/net35/unity-custom/nunit.framework.dll
+E:/UNTIY/Editor/Data/UnityExtensions/Unity/Timeline/RuntimeEditor/UnityEngine.Timeline.dll
+E:/UNTIY/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll
+E:/UNTIY/Editor/Data/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll
