@@ -80,7 +80,10 @@
   <ItemGroup>
     <Compile Include="Assets\SCRIPT\CameraScript.cs" />
     <Compile Include="Assets\SCRIPT\Map.cs" />
+    <Compile Include="Assets\SCRIPT\MonoBehaviourExtended.cs" />
+    <Compile Include="Assets\SCRIPT\Singleton.cs" />
     <Compile Include="Assets\SCRIPT\Tile.cs" />
+    <Compile Include="Assets\SCRIPT\Utility.cs" />
     <Compile Include="Assets\SCRIPT\Zone.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
