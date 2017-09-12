@@ -6,8 +6,8 @@ public class Map : MonoBehaviour {
 
     public Transform TilePrefab = null;
 
-    float TileWidth = 1f;
-    float TileHeight = 1f;
+    public float TileWidth = 1f;
+    public float TileHeight = 1f;
 
     public uint Width = 8;
     public uint Height = 8;
