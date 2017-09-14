@@ -78,10 +78,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\SCRIPT\AgentCoordDraw.cs" />
+    <Compile Include="Assets\SCRIPT\AStar.cs" />
     <Compile Include="Assets\SCRIPT\CameraMarqee.cs" />
     <Compile Include="Assets\SCRIPT\CameraScript.cs" />
     <Compile Include="Assets\SCRIPT\Map.cs" />
     <Compile Include="Assets\SCRIPT\MonoBehaviourExtended.cs" />
+    <Compile Include="Assets\SCRIPT\SimpleNavigation.cs" />
     <Compile Include="Assets\SCRIPT\Singleton.cs" />
     <Compile Include="Assets\SCRIPT\Tile.cs" />
     <Compile Include="Assets\SCRIPT\UnitSelect.cs" />

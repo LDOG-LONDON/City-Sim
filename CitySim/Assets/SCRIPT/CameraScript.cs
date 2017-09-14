@@ -91,10 +91,8 @@ public class CameraScript : MonoBehaviour {
         newPos.z = Mathf.Clamp(newPos.z, 1.5f, 50f);
         newPos.x = Mathf.Clamp(newPos.x, MapBounds.x, MapBounds.z);
         newPos.y = Mathf.Clamp(newPos.y, MapBounds.y, MapBounds.w);
-        //Distance = newPos.z;
+
         Cam.transform.position = newPos;
-        //NEW = newPos;
-        //Cam.LookAt(new Vector3(newPos.x, newPos.y, 1));
     }
         
         

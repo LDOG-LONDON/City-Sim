@@ -13,28 +13,26 @@ public class Map : MonoBehaviour {
     public uint Height = 8;
 
     List<Tile> TileList = null;
-    List<Zone> ZoneList = null;
+    List<Transform> ObjectList;
+    public Tile[,] Grid;
 
-    //public Vector3 CoordToVec3(int x, int y)
-    //{
-    //    return new Vector3((-(Width - 1) * TileWidth / 2f) + (TileWidth) * x + transform.position.x,
-    //                       (-(Height - 1) * TileHeight / 2f) + (TileHeight) * y + transform.position.y,
-    //                       transform.position.z - 1f);
-    //}
-    //
-    //public Vector3 Vec3ToCoord(Vector3 pos)
-    //{
-    //    float X = ((Mathf.Round(pos.x * 100.0f) / 100.0f) + ((Width + 1) * TileWidth / 2f) - transform.position.x) / TileWidth;
-    //    float Y = ((Mathf.Round(pos.y * 100.0f) / 100.0f) + ((Height + 1) * TileHeight / 2f) - transform.position.y) / TileHeight;
-    //    float Z = transform.position.z + 1f;
-    //    return new Vector3(X, Y, Z);
-    //}
+    public void ResetMapColor()
+    {
+        foreach(Transform obj in ObjectList)
+        {
+            obj.GetComponent<MeshRenderer>().material.color = Color.white;
+        }
+    }
 
     void Awake () {
         Utility.Instance.Height = Height;
         Utility.Instance.Width = Width;
         Utility.Instance.TileHeight = TileHeight;
         Utility.Instance.TileWidth = TileWidth;
+        Utility.Instance.MapPosition = transform.position;
+        
+        Grid = new Tile[Width, Height];
+        ObjectList = new List<Transform>();
 
         if (TilePrefab == null)
         {
@@ -49,13 +47,14 @@ public class Map : MonoBehaviour {
                 Vector3 tilePos = Utility.Instance.CoordToVec3(x, y);
                 Transform obj = Instantiate(TilePrefab, tilePos, Quaternion.identity, transform);
                 obj.localScale = new Vector3(TileWidth, TileHeight, 0.5f);
-                Tile newTile = new Tile(x, y, obj);
-
+                Tile newTile = new Tile(x, y,tilePos, obj);
+                ObjectList.Add(obj);
                 TileList.Add(newTile);
+                Grid[x, y] = newTile;
             }
 
-        
-	}
+        AStar.Instance.grid = Grid;
+    }
 
     void Start()
     {

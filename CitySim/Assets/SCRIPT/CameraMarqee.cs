@@ -13,8 +13,17 @@ public class CameraMarqee : MonoBehaviour {
 
     public List<GameObject> selectedUnits;
     List<GameObject> tempUnits;
+    private GameObject map;
 
     float invertedY;
+
+    // projection stuff
+    private float d;
+    private Vector3 normal;
+
+    // map bounds for agents
+    private Vector3 minV3;
+    private Vector3 maxV3;
 
     private void OnGUI()
     {
@@ -24,21 +33,56 @@ public class CameraMarqee : MonoBehaviour {
         GUI.DrawTexture(marqueeRect, marqueeGraphics);
     }
 
-	// Use this for initialization
 	void Start () {
         if (marqueeGraphics == null)
             Debug.Log("CameraMarquee Script: Marquee graphic not set!");
         selectedUnits = new List<GameObject>();
-	}
+
+       // this for finding projected points for agents
+       Vector3 point = Utility.Instance.MapPosition;
+       normal = Vector3.forward;
+       d = -1f * (point.z * normal.z);
+
+
+       // keeps agent within map bounds
+       minV3 = Utility.Instance.CoordToVec3(0, 0);
+       minV3.x -= Utility.Instance.TileWidth / 2f;
+       minV3.y -= Utility.Instance.TileHeight / 2f;
+
+       maxV3 = Utility.Instance.CoordToVec3(Utility.Instance.Width - 1,
+                                            Utility.Instance.Height - 1);
+       maxV3.x += Utility.Instance.TileWidth / 2f;
+       maxV3.y += Utility.Instance.TileHeight / 2f;
+    }
 	
-	// Update is called once per frame
 	void Update () {
 
         if (Input.GetMouseButtonDown(1))
         {
-            foreach (GameObject agent in selectedUnits)
-                agent.SendMessage("OnUnselect", SendMessageOptions.DontRequireReceiver);
-            selectedUnits.Clear();
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            float t = -1f * (Vector3.Dot(ray.origin, normal) + d) 
+                            / (Vector3.Dot(ray.direction, normal));
+
+            Vector3 projectedPoint = ray.origin + t * ray.direction;
+
+            
+            projectedPoint.x = Mathf.Clamp(projectedPoint.x, minV3.x, maxV3.x);
+            projectedPoint.y = Mathf.Clamp(projectedPoint.y, minV3.y, maxV3.y);
+            
+            if (selectedUnits.Count == 1)
+            {
+                Vector3 waypoint = projectedPoint + Vector3.forward;
+                selectedUnits[0].SendMessage("SetWaypoint", waypoint, SendMessageOptions.DontRequireReceiver);
+                return;
+            }
+
+            foreach(GameObject agent in selectedUnits)
+            {
+                Vector3 randDir = new Vector3(Random.Range(0f, 1f), Random.Range(0f, 1f), 0f);
+                randDir.Normalize();
+                Vector3 waypoint = projectedPoint + Vector3.forward + randDir * Random.Range(0f, 2f);
+                agent.SendMessage("SetWaypoint", waypoint, SendMessageOptions.DontRequireReceiver);
+            }
         }
 
 		if (Input.GetMouseButtonDown(0))
@@ -101,10 +145,12 @@ public class CameraMarqee : MonoBehaviour {
                 Vector3 screenPos = Camera.main.WorldToScreenPoint(agent.transform.position);
                 Vector2 screenPoint = new Vector2(screenPos.x, Screen.height - screenPos.y);
 
-                //if (!marqueeRect.Contains(screenPoint) || !backUpRect.Contains(screenPoint))
-                //{
-                //    agent.SendMessage("OnUnselect", SendMessageOptions.DontRequireReceiver);
-                //}
+                if (!marqueeRect.Contains(screenPoint) || !backUpRect.Contains(screenPoint))
+                {
+                    agent.SendMessage("OnUnselect", SendMessageOptions.DontRequireReceiver);
+                    if (selectedUnits.Contains(agent))
+                        selectedUnits.Remove(agent);
+                }
                 if (marqueeRect.Contains(screenPoint) || backUpRect.Contains(screenPoint))
                 {
                     if (!selectedUnits.Contains(agent))
