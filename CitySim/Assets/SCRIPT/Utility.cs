@@ -33,11 +33,22 @@ public class Utility : Singleton<Utility> {
 
     public Vector3 Vec3ToCoord(Vector3 pos)
     {
+        /*
         float X = ((Mathf.Round(pos.x * 100.0f) / 100.0f) + ((Width + 1) * TileWidth / 2f) - MapPosition.x) / TileWidth;
         float Y = ((Mathf.Round(pos.y * 100.0f) / 100.0f) + ((Height + 1) * TileHeight / 2f) - MapPosition.y) / TileHeight;
         float Z = MapPosition.z;
         X = Mathf.Clamp(X, 0, Width - 1);
         Y = Mathf.Clamp(Y, 0, Height - 1);
+        return new Vector3(X, Y, Z);
+        */
+        pos = pos - MapPosition;
+
+        float X = pos.x + ((Width / 2.0f) - (TileWidth / 2.0f));
+        float Y = pos.y + ((Height / 2.0f) - (TileHeight / 2.0f));
+        float Z = MapPosition.z;
+
+        X = Mathf.Clamp(X, 0, Width-1);
+        Y = Mathf.Clamp(Y, 0, Height-1);
         return new Vector3(X, Y, Z);
     }
 }

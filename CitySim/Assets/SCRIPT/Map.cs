@@ -30,6 +30,7 @@ public class Map : MonoBehaviour {
         Utility.Instance.TileHeight = TileHeight;
         Utility.Instance.TileWidth = TileWidth;
         Utility.Instance.MapPosition = transform.position;
+
         
         Grid = new Tile[Width, Height];
         ObjectList = new List<Transform>();

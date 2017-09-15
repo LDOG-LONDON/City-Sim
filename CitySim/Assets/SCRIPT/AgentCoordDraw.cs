@@ -36,7 +36,7 @@ public class AgentCoordDraw : MonoBehaviour {
 	
 	void Update () {
         //if (Utility.Instance.DebugInfo == false)
-            return;
+           // return;
 
 		if (map != null)
         {
@@ -44,7 +44,7 @@ public class AgentCoordDraw : MonoBehaviour {
                 return;
 
             coord = Utility.Instance.Vec3ToCoord(transform.position);
-            nextTile = map.Grid[(int)coord.x, (int)coord.y];
+            nextTile = map.Grid[(int)Mathf.Round(coord.x), (int)Mathf.Round(coord.y)];
             if (prevTile == nextTile)
                 return;
             else
