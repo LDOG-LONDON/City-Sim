@@ -7,6 +7,7 @@ public class AgentCoordDraw : MonoBehaviour {
     Map map;
     Color prev = Color.white;
     public Color cur = Color.black;
+    TrailRenderer trail;
     Tile prevTile;
     Tile nextTile;
     Vector3 coord;
@@ -30,13 +31,25 @@ public class AgentCoordDraw : MonoBehaviour {
         body = GetComponent<Rigidbody>();
         coord = Utility.Instance.Vec3ToCoord(transform.position);
         prevTile = map.Grid[(int)coord.x, (int)coord.y];
+        trail = GetComponent<TrailRenderer>();
         //prev = GetColor(prevTile);
         
 	}
 	
 	void Update () {
-        //if (Utility.Instance.DebugInfo == false)
-           // return;
+        if (Utility.Instance.DebugInfo == false)
+        {
+            if (trail.enabled == true)
+            {
+                ChangeColor(prevTile, Color.white);
+                trail.enabled = false;
+            }
+            return;
+        }
+           
+
+        if (trail && trail.enabled == false)
+            trail.enabled = true;
 
 		if (map != null)
         {
@@ -44,7 +57,7 @@ public class AgentCoordDraw : MonoBehaviour {
                 return;
 
             coord = Utility.Instance.Vec3ToCoord(transform.position);
-            nextTile = map.Grid[(int)Mathf.Round(coord.x), (int)Mathf.Round(coord.y)];
+            nextTile = map.Grid[(int)coord.x, (int)coord.y];
             if (prevTile == nextTile)
                 return;
             else

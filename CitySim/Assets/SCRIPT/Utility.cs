@@ -19,16 +19,25 @@ public class Utility : Singleton<Utility> {
 
     public Vector3 CoordToVec3(int x, int y)
     {
-        return new Vector3((-(Width - 1) * TileWidth / 2f) + (TileWidth) * x + MapPosition.x,
-                           (-(Height - 1) * TileHeight / 2f) + (TileHeight) * y + MapPosition.y,
-                           MapPosition.z);
+        float X = x * (TileWidth) + MapPosition.x;
+        float Y = y * (TileHeight) + MapPosition.y;
+        float Z = MapPosition.z;
+        return new Vector3(X, Y, Z);
+
+        //return new Vector3((-(Width - 1) * TileWidth / 2f) + (TileWidth) * x + MapPosition.x,
+        //                   (-(Height - 1) * TileHeight / 2f) + (TileHeight) * y + MapPosition.y,
+        //                   MapPosition.z);
     }
 
     public Vector3 CoordToVec3(float x, float y)
     {
-        return new Vector3((-(Width - 1) * TileWidth / 2f) + (TileWidth) * x + MapPosition.x,
-                           (-(Height - 1) * TileHeight / 2f) + (TileHeight) * y + MapPosition.y,
-                           MapPosition.z);
+        float X = x * (TileWidth) + MapPosition.x;
+        float Y = y * (TileHeight) + MapPosition.y;
+        float Z = MapPosition.z;
+        return new Vector3(X, Y, Z);
+        //return new Vector3((-(Width - 1) * TileWidth / 2f) + (TileWidth) * x + MapPosition.x,
+        //                   (-(Height - 1) * TileHeight / 2f) + (TileHeight) * y + MapPosition.y,
+        //                   MapPosition.z);
     }
 
     public Vector3 Vec3ToCoord(Vector3 pos)
@@ -43,8 +52,11 @@ public class Utility : Singleton<Utility> {
         */
         pos = pos - MapPosition;
 
-        float X = pos.x + ((Width / 2.0f) - (TileWidth / 2.0f));
-        float Y = pos.y + ((Height / 2.0f) - (TileHeight / 2.0f));
+        //float X = pos.x + ((Width / 2.0f) - (TileWidth / 2.0f));
+        //float Y = pos.y + ((Height / 2.0f) - (TileHeight / 2.0f));
+        //float Z = MapPosition.z;
+        float X = pos.x / (TileWidth) + 0.5f;
+        float Y = pos.y / (TileHeight) + 0.5f;
         float Z = MapPosition.z;
 
         X = Mathf.Clamp(X, 0, Width-1);

@@ -25,10 +25,19 @@ public class CC_GridCell {
     float Potential;
 }
 
-public class CC_GlogalCell
+public class CC_GlobalCell
 {
-    Vector2 AverageVelocity;
-    float Discomfort;
 
-    float Height;
+    public CC_GlobalCell(Vector3 worldPos, Vector2 Coordinate)
+    {
+        WorldPos = worldPos;
+        Coord = Coordinate;
+    }
+    public Vector3 WorldPos;
+    public Vector2 Coord;
+
+    public Vector2 AverageVelocity;
+    public float Discomfort;
+    public float Density;
+    public float Height;
 }

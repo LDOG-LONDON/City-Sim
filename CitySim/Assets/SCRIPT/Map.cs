@@ -25,6 +25,7 @@ public class Map : MonoBehaviour {
     }
 
     void Awake () {
+        CC_Grid.Instance.begin = true;
         Utility.Instance.Height = Height;
         Utility.Instance.Width = Width;
         Utility.Instance.TileHeight = TileHeight;

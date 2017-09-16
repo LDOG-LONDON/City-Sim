@@ -45,9 +45,9 @@ public class SimpleNavigation : MonoBehaviour {
         {
             Vector3 movDir = waypoint - transform.position;
             float mag = movDir.magnitude;
-            if (mag < 0.1f)
+            if (mag < 0.05f)
                 goTowards = false;
-            body.velocity = movDir.normalized * speed;
+            body.velocity = movDir * speed;
         }
 	}
 }
