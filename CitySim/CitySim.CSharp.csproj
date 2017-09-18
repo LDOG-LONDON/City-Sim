@@ -78,19 +78,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\SCRIPT\AgentCoordDraw.cs" />
+    <Compile Include="Assets\SCRIPT\Agent\AgentCoordDraw.cs" />
+    <Compile Include="Assets\SCRIPT\Agent\CC_AgentData.cs" />
+    <Compile Include="Assets\SCRIPT\Agent\UnitSelect.cs" />
     <Compile Include="Assets\SCRIPT\AStar.cs" />
-    <Compile Include="Assets\SCRIPT\CameraMarqee.cs" />
-    <Compile Include="Assets\SCRIPT\CameraScript.cs" />
-    <Compile Include="Assets\SCRIPT\CC_AgentData.cs" />
+    <Compile Include="Assets\SCRIPT\Camera\CameraMarqee.cs" />
+    <Compile Include="Assets\SCRIPT\Camera\CameraScript.cs" />
     <Compile Include="Assets\SCRIPT\CC_Grid.cs" />
     <Compile Include="Assets\SCRIPT\CCGridCell.cs" />
+    <Compile Include="Assets\SCRIPT\GlobalFlockingData.cs" />
+    <Compile Include="Assets\SCRIPT\Managers\AgentManager.cs" />
+    <Compile Include="Assets\SCRIPT\Managers\DebugManager.cs" />
+    <Compile Include="Assets\SCRIPT\Managers\MovementManager.cs" />
     <Compile Include="Assets\SCRIPT\Map.cs" />
     <Compile Include="Assets\SCRIPT\MonoBehaviourExtended.cs" />
-    <Compile Include="Assets\SCRIPT\SimpleNavigation.cs" />
+    <Compile Include="Assets\SCRIPT\Movement\SimpleFlocking.cs" />
+    <Compile Include="Assets\SCRIPT\Movement\SimpleNavigation.cs" />
     <Compile Include="Assets\SCRIPT\Singleton.cs" />
     <Compile Include="Assets\SCRIPT\Tile.cs" />
-    <Compile Include="Assets\SCRIPT\UnitSelect.cs" />
     <Compile Include="Assets\SCRIPT\Utility.cs" />
     <Compile Include="Assets\SCRIPT\Zone.cs" />
   </ItemGroup>

@@ -11,6 +11,7 @@ public class SimpleNavigation : MonoBehaviour {
     bool useAStart = false;
     List<Tile> path;
     public bool doneFindingPath = false;
+    public bool isOn = false;
 
     public void SetWaypoint(Vector3 Waypoint)
     {
@@ -24,6 +25,9 @@ public class SimpleNavigation : MonoBehaviour {
     }
 	
 	void Update () {
+
+        if (!MovementManager.Instance.UseSimpleNavigation)
+            return;
 
         if (Utility.Instance.DebugInfo == true)
             Debug.DrawRay(transform.position, body.velocity,Color.black);

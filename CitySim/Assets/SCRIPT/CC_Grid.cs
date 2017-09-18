@@ -111,8 +111,10 @@ public class CC_Grid : Singleton<CC_Grid> {
                 {
                     for (int y = 0; y < Height; y++)
                     {
-                        Db_TextGrid[x, y].text = new string(("Den: " + GlobalGrid[x, y].Density).ToCharArray());
-                    }
+                        float density = GlobalGrid[x, y].Density;
+                        string den = density.ToString("F2");
+                        Db_TextGrid[x, y].text = den;
+            }
                 }
             }
         }
@@ -358,9 +360,22 @@ public class CC_Grid : Singleton<CC_Grid> {
         }
     }
 
+    void ResetGrid()
+    {
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                GlobalGrid[x, y].AverageVelocity = Vector2.zero;
+                GlobalGrid[x,y].Density = 0f;
+            }
+        }
+    }
+
     void Update()
     {
-        Debug();
+        ResetGrid();
         DensityConversion();
+        Debug();
     }
 }

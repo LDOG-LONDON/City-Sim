@@ -24,10 +24,11 @@ GameObject:
   - component: {fileID: 23776812531843546}
   - component: {fileID: 114274444913775190}
   - component: {fileID: 54376634229635428}
-  - component: {fileID: 114674576067367812}
   - component: {fileID: 114210481167825564}
   - component: {fileID: 96565765952436956}
   - component: {fileID: 114651994533242280}
+  - component: {fileID: 114850451900728378}
+  - component: {fileID: 114610158747011594}
   m_Layer: 0
   m_Name: Agent
   m_TagString: SelectableUnit
@@ -217,20 +218,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSelected: 0
---- !u!114 &114651994533242280
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1104237689876476}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38fbfc8a8fc2f644694cf5b9baf3122c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Velocity: {x: 0, y: 0, z: 0}
-  Radius: 1
---- !u!114 &114674576067367812
+--- !u!114 &114610158747011594
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -242,6 +230,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   doneFindingPath: 0
+  isOn: 0
+--- !u!114 &114651994533242280
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1104237689876476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38fbfc8a8fc2f644694cf5b9baf3122c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Velocity: {x: 0, y: 0}
+  Radius: 1
+--- !u!114 &114850451900728378
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1104237689876476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a05354d1cfc3ae4eb5f74a0f5a35c5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Goal: {x: 0, y: 0, z: 0}
+  vel: {x: 0, y: 0, z: 0}
 --- !u!136 &136385168618233526
 CapsuleCollider:
   m_ObjectHideFlags: 1
