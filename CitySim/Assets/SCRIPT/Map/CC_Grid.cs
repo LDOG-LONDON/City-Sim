@@ -15,7 +15,7 @@ public class CC_Grid : Singleton<CC_Grid> {
     private GameObject holder;
 
     public float AverageVelocity;
-    public float Lambda = 1f;
+    public float Lambda = 0.5f;
 
     private float avgVel;
 
@@ -31,9 +31,48 @@ public class CC_Grid : Singleton<CC_Grid> {
     TextMesh[,] Db_TextGrid;
     MeshRenderer[,] Db_MeshGrid;
 
+    public void Load()
+    {
+        Width = (int)Utility.Instance.Width;
+        Height = (int)Utility.Instance.Height;
+        GlobalGrid = new CC_GlobalCell[Width, Height];
+        GlobalCellList = new List<CC_GlobalCell>();
+
+        InitDebug();
+
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                Vector2 coord = new Vector2((float)x, (float)y);
+                Vector3 WorldPos = Utility.Instance.CoordToVec3(x, y);
+                CC_GlobalCell newGC = new CC_GlobalCell(WorldPos, coord);
+                GlobalGrid[x, y] = newGC;
+                GlobalCellList.Add(newGC);
+                SetUpDebug(x, y, WorldPos);
+            }
+        }
+
+
+        AgentList = AgentManager.Instance.agentTransforms;
+        AgentData = new List<CC_AgentData>();
+        foreach (Transform obj in AgentList)
+        {
+            AgentData.Add(obj.GetComponent<CC_AgentData>());
+        }
+    }
 
     void InitDebug()
     {
+        if (holder)
+        {
+            foreach(Transform obj in Db_TileList)
+            {
+                Destroy(obj.gameObject);
+            }
+            Destroy(holder);
+        }
+
         Db_TileList = new List<Transform>();
         Db_TextList = new List<TextMesh>();
         Db_MeshList = new List<MeshRenderer>();
@@ -142,14 +181,12 @@ public class CC_Grid : Singleton<CC_Grid> {
             }
         }
 
-        List<GameObject> units = new List<GameObject>(
-            GameObject.FindGameObjectsWithTag("SelectableUnit"));
-        AgentList = new List<Transform>();
+
+        AgentList = AgentManager.Instance.agentTransforms;
         AgentData = new List<CC_AgentData>();
-        foreach(GameObject obj in units)
+        foreach(Transform obj in AgentList)
         {
             AgentData.Add(obj.GetComponent<CC_AgentData>());
-            AgentList.Add(obj.transform);
         }
 
     }
@@ -217,7 +254,7 @@ public class CC_Grid : Singleton<CC_Grid> {
             Vector3 bWorld = GlobalGrid[Bx, By].WorldPos;
             Vector3 aWorld = GlobalGrid[Ax, Ay].WorldPos;
 
-            Vector3 minCellWorld = GlobalGrid[Ax, Ax].WorldPos;
+            Vector3 minCellWorld = GlobalGrid[Ax, Ay].WorldPos;
             float deltaX = agentWorld.x - minCellWorld.x;
             float deltaY = agentWorld.y - minCellWorld.y;
 
@@ -240,7 +277,7 @@ public class CC_Grid : Singleton<CC_Grid> {
             }
 
             // case #1: agent is below (in both x & y) it current cell's center
-            if (agentWorld.x < cWorld.x && agentWorld.y < cWorld.y)
+            if (agentWorld.x <= cWorld.x && agentWorld.y <= cWorld.y)
             {
                 // coord [0,y] on grid
                 if (dontUseDA)

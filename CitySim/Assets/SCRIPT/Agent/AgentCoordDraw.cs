@@ -15,13 +15,13 @@ public class AgentCoordDraw : MonoBehaviour {
 
     public void ChangeColor(Tile tile, Color color)
     {
-        if (tile.Prefab != null)
+        if (tile != null && tile.Prefab != null)
             tile.Prefab.GetComponent<MeshRenderer>().material.color = color;
     }
 
     public Color GetColor(Tile tile)
     {
-        if (tile.Prefab != null)
+        if (tile != null && tile.Prefab != null)
             return tile.Prefab.GetComponent<MeshRenderer>().material.color;
         return Color.black;
     }
@@ -36,7 +36,7 @@ public class AgentCoordDraw : MonoBehaviour {
         
 	}
 	
-	void Update () {
+	void LateUpdate () {
         if (Utility.Instance.DebugInfo == false)
         {
             if (trail.enabled == true)
@@ -58,15 +58,8 @@ public class AgentCoordDraw : MonoBehaviour {
 
             coord = Utility.Instance.Vec3ToCoord(transform.position);
             nextTile = map.Grid[(int)coord.x, (int)coord.y];
-            if (prevTile == nextTile)
-                return;
-            else
-            {
-                ChangeColor(prevTile, prev);
-                prevTile = nextTile;
-                //prev = GetColor(nextTile);
+            if (!nextTile.Wall)
                 ChangeColor(nextTile, cur);
-            }
         }
 	}
 }

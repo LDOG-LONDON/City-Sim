@@ -78,26 +78,38 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\SaveLoad\Character.cs" />
+    <Compile Include="Assets\SaveLoad\Game.cs" />
+    <Compile Include="Assets\SaveLoad\Gameplay.cs" />
+    <Compile Include="Assets\SaveLoad\MainMenu.cs" />
+    <Compile Include="Assets\SaveLoad\SaveLoad.cs" />
     <Compile Include="Assets\SCRIPT\Agent\AgentCoordDraw.cs" />
     <Compile Include="Assets\SCRIPT\Agent\CC_AgentData.cs" />
     <Compile Include="Assets\SCRIPT\Agent\UnitSelect.cs" />
-    <Compile Include="Assets\SCRIPT\AStar.cs" />
     <Compile Include="Assets\SCRIPT\Camera\CameraMarqee.cs" />
     <Compile Include="Assets\SCRIPT\Camera\CameraScript.cs" />
-    <Compile Include="Assets\SCRIPT\CC_Grid.cs" />
-    <Compile Include="Assets\SCRIPT\CCGridCell.cs" />
-    <Compile Include="Assets\SCRIPT\GlobalFlockingData.cs" />
     <Compile Include="Assets\SCRIPT\Managers\AgentManager.cs" />
     <Compile Include="Assets\SCRIPT\Managers\DebugManager.cs" />
     <Compile Include="Assets\SCRIPT\Managers\MovementManager.cs" />
-    <Compile Include="Assets\SCRIPT\Map.cs" />
+    <Compile Include="Assets\SCRIPT\Map\CC_Grid.cs" />
+    <Compile Include="Assets\SCRIPT\Map\CCGridCell.cs" />
+    <Compile Include="Assets\SCRIPT\Map\Map.cs" />
+    <Compile Include="Assets\SCRIPT\Map\Tile.cs" />
+    <Compile Include="Assets\SCRIPT\Map\Zone.cs" />
+    <Compile Include="Assets\SCRIPT\Menu.cs" />
     <Compile Include="Assets\SCRIPT\MonoBehaviourExtended.cs" />
+    <Compile Include="Assets\SCRIPT\Movement\AStar.cs" />
+    <Compile Include="Assets\SCRIPT\Movement\GlobalFlockingData.cs" />
     <Compile Include="Assets\SCRIPT\Movement\SimpleFlocking.cs" />
     <Compile Include="Assets\SCRIPT\Movement\SimpleNavigation.cs" />
+    <Compile Include="Assets\SCRIPT\SaveLoad\GameState.cs" />
+    <Compile Include="Assets\SCRIPT\SaveLoad\SaveLoadSystem.cs" />
+    <Compile Include="Assets\SCRIPT\Serialization\SerializableVector2.cs" />
+    <Compile Include="Assets\SCRIPT\Serialization\SerializableVector3.cs" />
+    <Compile Include="Assets\SCRIPT\Serialization\Vector2SerializationSurrogate.cs" />
+    <Compile Include="Assets\SCRIPT\Serialization\Vector3SerializationSurrogate.cs" />
     <Compile Include="Assets\SCRIPT\Singleton.cs" />
-    <Compile Include="Assets\SCRIPT\Tile.cs" />
     <Compile Include="Assets\SCRIPT\Utility.cs" />
-    <Compile Include="Assets\SCRIPT\Zone.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CC_AgentData : MonoBehaviour{
 
-    Vector2 Goal;
+    public Vector2 Goal;
     public Vector2 Velocity;
     public float Radius = 1f; // for density
 

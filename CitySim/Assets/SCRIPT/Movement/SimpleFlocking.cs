@@ -17,6 +17,10 @@ public class SimpleFlocking : MonoBehaviour {
     private Vector3 wandering;
     private Vector3 moveTowards;
 
+    private float randOffset;
+
+    float wanderTimer = 0f;
+
     private bool toCloseToGoal=false;
 
     Rigidbody myBody;
@@ -32,6 +36,8 @@ public class SimpleFlocking : MonoBehaviour {
 
         myBody = GetComponent<Rigidbody>();
         Goal = Utility.Instance.CoordToVec3(Utility.Instance.Width / 2, Utility.Instance.Height / 2);
+
+        randOffset = Random.Range(0f, 1f);
     }
 	
     void Cohesion()
@@ -56,9 +62,6 @@ public class SimpleFlocking : MonoBehaviour {
         }
 
         cohesion = myBody.position - (groupCenter / groupNumber);
-
-        if (cohesion.sqrMagnitude > 1f)
-            cohesion.Normalize();
     }
 
     void Seperation()
@@ -116,10 +119,6 @@ public class SimpleFlocking : MonoBehaviour {
                 seperation = ((otherAgentVector + AveVel) / groupNumber);
                 break;
         }
-
-        //if (GlobalFlockingData.Instance.UseNormalizedVectors == true)
-        //if (seperation.sqrMagnitude > 1f)
-        //    seperation.Normalize();
     }
 
     void Alignment()
@@ -146,23 +145,21 @@ public class SimpleFlocking : MonoBehaviour {
         }
         alignment = AveVel / groupNumber;
 
-        //if (GlobalFlockingData.Instance.UseNormalizedVectors == true)
-        //if (alignment.sqrMagnitude > 1f)
-        //    alignment.Normalize();
+        
     }
 
     void Wandering()
     {
+        wanderTimer += Time.fixedDeltaTime;
         Vector3 normalVel = myBody.velocity.normalized;
         wandering = normalVel;
         float x = wandering.x;
         wandering.x = -wandering.y;
         wandering.y = x;
-        float randVecLength = Random.Range(-0.1f, 0.1f);
-        wandering = wandering * randVecLength + normalVel;
+        float randVecLength = (Mathf.PerlinNoise(wanderTimer,randOffset) * 2) - 1f;//Random.Range(-1f, 1f);
+        wandering = wandering * randVecLength;
 
-        if (GlobalFlockingData.Instance.UseNormalizedVectors == true)
-            wandering.Normalize();
+        wandering.Normalize();
 
     }
 

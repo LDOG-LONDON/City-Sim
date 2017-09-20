@@ -10,13 +10,4 @@ public class MovementManager : Singleton<MovementManager> {
     public bool UseSimpleNavigation;
     public bool UseContinuumCrowd;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }
