@@ -29,6 +29,7 @@ GameObject:
   - component: {fileID: 114651994533242280}
   - component: {fileID: 114850451900728378}
   - component: {fileID: 114610158747011594}
+  - component: {fileID: 114597014175519758}
   m_Layer: 0
   m_Name: Agent
   m_TagString: SelectableUnit
@@ -218,6 +219,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSelected: 0
+--- !u!114 &114597014175519758
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1104237689876476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54c7db2f8dd72ad48b5309c8586c7dd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WaypointList: []
+  acceptableRadius: 0.5
+  radiusSq: 0
 --- !u!114 &114610158747011594
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -242,8 +257,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38fbfc8a8fc2f644694cf5b9baf3122c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Velocity: {x: 0, y: 0}
-  Radius: 1
+  Goal: {x: 0, y: 0}
+  Group: 0
 --- !u!114 &114850451900728378
 MonoBehaviour:
   m_ObjectHideFlags: 1

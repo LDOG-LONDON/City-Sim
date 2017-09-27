@@ -15,10 +15,11 @@ public class AStar : Singleton<AStar> {
     public bool useDiagonals = true;
     public bool singleStep;
     bool pathEvent = false;
-    SimpleNavigation agent;
+    List<GameObject> agents;
 
     List<Tile> open;
     List<Tile> finalPath;
+    List<Vector3> finalPathVec3;
     public Tile[,] grid;
 
 
@@ -29,11 +30,12 @@ public class AStar : Singleton<AStar> {
 
         open = new List<Tile>();
         finalPath = new List<Tile>();
+        finalPathVec3 = new List<Vector3>();
+        agents = new List<GameObject>();
     }
 
     void Update()
     {
-
         if (pathEvent)
         {
             timer = 0;
@@ -43,29 +45,46 @@ public class AStar : Singleton<AStar> {
                 bool done = FindPath();
                 if (done)
                 {
+                    GivePath();
                     pathEvent = false;
                     return;
                 }
             }
         }
-
-        //Debug.Log("ASTAR!");
     }
 
-    public void NewRequest(Vector4 GoalOrigin, SimpleNavigation nav)
+    void GivePath()
+    {
+        foreach(GameObject unit in agents)
+        {
+            unit.SendMessage("SetWaypointList",
+                finalPathVec3,
+                SendMessageOptions.DontRequireReceiver);
+        }
+        
+        List<Vector3> buff = finalPathVec3;
+    }
+
+    public void NewRequest(Vector3 Start, Vector3 Goal, GameObject Agent)
     {
         pathEvent = true;
-        agent = nav;
+        
         open.Clear();
         finalPath.Clear();
+        finalPathVec3.Clear();
+        agents.Clear();
 
-        GoalOrigin.x = Mathf.Clamp(GoalOrigin.x, 0, Width - 1);
-        GoalOrigin.z = Mathf.Clamp(GoalOrigin.z, 0, Width - 1);
-        GoalOrigin.y = Mathf.Clamp(GoalOrigin.y, 0, Height - 1);
-        GoalOrigin.w = Mathf.Clamp(GoalOrigin.w, 0, Height - 1);
+        agents.Add(Agent);
+        Start = Utility.Instance.Vec3ToCoord(Start);
+        Goal = Utility.Instance.Vec3ToCoord(Goal);
 
-        goal = grid[(int)GoalOrigin.x,(int)GoalOrigin.y];
-        origin = grid[(int)GoalOrigin.z,(int)GoalOrigin.w];
+        Goal.x = Mathf.Clamp(Goal.x, 0, Width - 1);
+        Start.x = Mathf.Clamp(Start.x, 0, Width - 1);
+        Goal.y = Mathf.Clamp(Goal.y, 0, Height - 1);
+        Start.y = Mathf.Clamp(Start.y, 0, Height - 1);
+
+        goal = grid[(int)Goal.x,(int)Goal.y];
+        origin = grid[(int)Start.x,(int)Start.y];
 
         goal.Parent = null;
         origin.Parent = null;
@@ -77,7 +96,49 @@ public class AStar : Singleton<AStar> {
 
         searchIteration++;
 
-        GameObject.Find("Map").GetComponent<Map>().SendMessage("ResetMapColor", SendMessageOptions.DontRequireReceiver);
+        //GameObject.Find("Map").GetComponent<Map>().SendMessage("ResetMapColor", SendMessageOptions.DontRequireReceiver);
+    }
+
+    public void NewRequest(Vector3 Goal, List<GameObject> Agents)
+    {
+        pathEvent = true;
+
+        open.Clear();
+        finalPath.Clear();
+        finalPathVec3.Clear();
+
+        if (agents != Agents)
+        {
+            agents.Clear();
+            agents = Agents;
+        }
+        
+        Vector3 Start = new Vector3();
+
+        foreach(GameObject unit in Agents)
+        {
+            Start += unit.transform.position;
+        }
+        Start /= Agents.Count;
+        Start = Utility.Instance.Vec3ToCoord(Start);
+
+        Goal.x = Mathf.Clamp(Goal.x, 0, Width - 1);
+        Start.x = Mathf.Clamp(Start.x, 0, Width - 1);
+        Goal.y = Mathf.Clamp(Goal.y, 0, Height - 1);
+        Start.y = Mathf.Clamp(Start.y, 0, Height - 1);
+
+        goal = grid[(int)Goal.x, (int)Goal.y];
+        origin = grid[(int)Start.x, (int)Start.y];
+
+        goal.Parent = null;
+        origin.Parent = null;
+
+        origin.Cost = 0f;
+        origin.Given = 0f;
+
+        open.Add(origin);
+
+        searchIteration++;
     }
 
     public bool FindPath()
@@ -156,6 +217,9 @@ public class AStar : Singleton<AStar> {
 
     public void PrintFinalPath()
     {
+        if (DebugManager.Instance.DebugAStar != DB_AStar.Color)
+            return;
+
         for (int i = 0; i < finalPath.Count; i++)
         {
             ChangeColor(finalPath[i], Color.green);
@@ -188,15 +252,17 @@ public class AStar : Singleton<AStar> {
     public void ConstructPath(Tile tile)
     {
         finalPath.Add(tile);
+        finalPathVec3.Add(Utility.Instance.CoordToVec3(tile.X, tile.Y));
         Tile walker = tile.Parent;
         while (walker != origin)
         {
             finalPath.Insert(0, walker);
+            finalPathVec3.Insert(0,Utility.Instance.CoordToVec3(walker.X, walker.Y));
             walker = walker.Parent;
         }
 
+        finalPathVec3.Insert(0, Utility.Instance.CoordToVec3(origin.X, origin.Y));
         finalPath.Insert(0, origin);
-
     }
 
     public Tile GetBestOnOpenList()
@@ -327,7 +393,7 @@ public class AStar : Singleton<AStar> {
     {
         int y = _y - 1;
         int x = _x + 1;
-        if (y < 0 || x >= Width)
+        if (y < 0 || x >= Width-1)
             return null;
         return grid[x, y];
     }
@@ -343,7 +409,7 @@ public class AStar : Singleton<AStar> {
     public Tile GetE(int _x, int _y)
     {
         int x = _x + 1;
-        if (x >= Width)
+        if (x >= Width-1)
             return null;
         return grid[x, _y];
     }
@@ -352,7 +418,7 @@ public class AStar : Singleton<AStar> {
     {
         int y = _y + 1;
         int x = _x + 1;
-        if (y >= Height || x >= Width)
+        if (y >= Height-1 || x >= Width-1)
             return null;
         return grid[x, y];
     }
@@ -361,7 +427,7 @@ public class AStar : Singleton<AStar> {
     {
         int Y = y + 1;
         int X = x - 1;
-        if (y >= Height || X < 0)
+        if (y >= Height-1 || X < 0)
             return null;
         return grid[X, Y];
     }
@@ -369,7 +435,7 @@ public class AStar : Singleton<AStar> {
     public Tile GetN(int x, int y)
     {
         int Y = y + 1;
-        if (Y >= Height)
+        if (Y >= Height-1)
             return null;
         return grid[x, Y];
     }

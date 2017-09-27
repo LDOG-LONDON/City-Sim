@@ -84,6 +84,7 @@
     <Compile Include="Assets\SaveLoad\MainMenu.cs" />
     <Compile Include="Assets\SaveLoad\SaveLoad.cs" />
     <Compile Include="Assets\SCRIPT\Agent\AgentCoordDraw.cs" />
+    <Compile Include="Assets\SCRIPT\Agent\AStarHandler.cs" />
     <Compile Include="Assets\SCRIPT\Agent\CC_AgentData.cs" />
     <Compile Include="Assets\SCRIPT\Agent\UnitSelect.cs" />
     <Compile Include="Assets\SCRIPT\Camera\CameraMarqee.cs" />
@@ -92,6 +93,9 @@
     <Compile Include="Assets\SCRIPT\Managers\DebugManager.cs" />
     <Compile Include="Assets\SCRIPT\Managers\MovementManager.cs" />
     <Compile Include="Assets\SCRIPT\Map\CC_Grid.cs" />
+    <Compile Include="Assets\SCRIPT\Map\CC_Grid.Debug.cs" />
+    <Compile Include="Assets\SCRIPT\Map\CC_Grid.Density.cs" />
+    <Compile Include="Assets\SCRIPT\Map\CC_Grid.UnitCost.cs" />
     <Compile Include="Assets\SCRIPT\Map\CCGridCell.cs" />
     <Compile Include="Assets\SCRIPT\Map\Map.cs" />
     <Compile Include="Assets\SCRIPT\Map\Tile.cs" />

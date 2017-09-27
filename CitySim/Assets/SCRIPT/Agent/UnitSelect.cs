@@ -29,14 +29,9 @@ public class UnitSelect : MonoBehaviour {
     public void Update()
     {
         if (body.velocity.sqrMagnitude < 0.1f)
-        {
             oldLook = body.velocity.normalized;
-        }
         else
-        {
             oldLook = body.velocity.normalized;
-        }
-
         transform.LookAt(transform.position + oldLook,Vector3.forward);
     }
 }

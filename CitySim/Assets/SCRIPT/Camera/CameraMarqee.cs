@@ -71,17 +71,35 @@ public class CameraMarqee : MonoBehaviour {
             
             if (selectedUnits.Count == 1)
             {
-                Vector3 waypoint = projectedPoint + Vector3.forward;
-                selectedUnits[0].SendMessage("SetWaypoint", waypoint, SendMessageOptions.DontRequireReceiver);
+                Vector3 waypoint = projectedPoint;
+                if (MovementManager.Instance.UseAStar == true)
+                {
+                    Vector3 start = selectedUnits[0].transform.position;
+                    AStar.Instance.NewRequest(start, waypoint, selectedUnits[0]);
+                } 
+                else
+                {
+                    selectedUnits[0].SendMessage("SetWaypoint", waypoint, SendMessageOptions.DontRequireReceiver);
+                }
                 return;
             }
 
-            foreach(GameObject agent in selectedUnits)
+            if (MovementManager.Instance.UseAStar == true)
             {
-                Vector3 randDir = new Vector3(Random.Range(0f, 1f), Random.Range(0f, 1f), 0f);
-                randDir.Normalize();
-                Vector3 waypoint = projectedPoint + Vector3.forward + randDir * Random.Range(0f, 2f);
-                agent.SendMessage("SetWaypoint", waypoint, SendMessageOptions.DontRequireReceiver);
+                if (selectedUnits.Count <= 0)
+                    return;
+                Vector3 waypoint = projectedPoint + Vector3.forward;
+                AStar.Instance.NewRequest(waypoint, selectedUnits);
+            }
+            else
+            {
+                foreach (GameObject agent in selectedUnits)
+                {
+                    Vector3 randDir = new Vector3(Random.Range(0f, 1f), Random.Range(0f, 1f), 0f);
+                    randDir.Normalize();
+                    Vector3 waypoint = projectedPoint + Vector3.forward + randDir * Random.Range(0f, 2f);
+                    agent.SendMessage("SetWaypoint", waypoint, SendMessageOptions.DontRequireReceiver);
+                }
             }
         }
 

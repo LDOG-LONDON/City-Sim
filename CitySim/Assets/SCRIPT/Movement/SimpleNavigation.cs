@@ -29,22 +29,6 @@ public class SimpleNavigation : MonoBehaviour {
         if (!MovementManager.Instance.UseSimpleNavigation)
             return;
 
-        if (Utility.Instance.DebugInfo == true)
-            Debug.DrawRay(transform.position, body.velocity,Color.black);
-
-        if (useAStart)
-        {
-            if (goTowards)
-            {
-                Vector3 origin = Utility.Instance.Vec3ToCoord(transform.position);
-                Vector3 goal = Utility.Instance.Vec3ToCoord(waypoint);
-                Vector4 go = new Vector4((int)goal.x, (int)goal.y, (int)origin.x, (int)origin.y);
-                AStar.Instance.NewRequest(go, this);
-                goTowards = false;
-            }
-            return;
-        }
-
 		if (goTowards)
         {
             Vector3 movDir = waypoint - transform.position;

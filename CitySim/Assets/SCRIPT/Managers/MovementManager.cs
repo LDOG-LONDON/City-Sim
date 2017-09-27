@@ -9,5 +9,6 @@ public class MovementManager : Singleton<MovementManager> {
     public bool UseSimpleFlocking = true;
     public bool UseSimpleNavigation;
     public bool UseContinuumCrowd;
+    public bool UseAStar = true;
 
 }

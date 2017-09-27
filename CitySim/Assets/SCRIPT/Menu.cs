@@ -23,7 +23,7 @@ public class Menu : MonoBehaviour {
     public MenuType currentMenu;
     void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(0, 0, Screen.width / 6, Screen.height / 6));
+        GUILayout.BeginArea(new Rect(0, 0, Screen.width / 4, Screen.height / 4));
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
         GUILayout.BeginVertical();

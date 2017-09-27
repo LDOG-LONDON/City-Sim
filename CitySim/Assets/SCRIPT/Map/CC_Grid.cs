@@ -2,28 +2,49 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CC_Grid : Singleton<CC_Grid> {
+public partial class CC_Grid : Singleton<CC_Grid> {
 
     protected CC_Grid() {}
-
+    // map data
     int Width;
     int Height;
+
+    // debug
     public bool begin = false;
     private bool debugOn = true;
-    public bool DensityText = true;
+    public bool DensityText = false;
+
 
     private GameObject holder;
 
-    public float AverageVelocity;
+    // for density
     public float Lambda = 0.5f;
+    public float AgentRadius = 1f;
 
-    private float avgVel;
+    // speed min and max
+    public float Fmin = 0f;
+    public float Fmax = 10f;
+    // slope min and max
+    public float SlopeMin = -0.5f;
+    public float SlopeMax = 0.5f;
+    // density min and max
+    public float DensityMin = 0f;
+    public float DensityMax = 6f;
 
+    // for groups
+    public int GroupNumber = 1;
+    public int currentGroupIndex = 0;
+    List<CC_GridCell[,]> GroupGridList;
+
+
+
+    // data
     List<CC_GlobalCell> GlobalCellList;
     CC_GlobalCell[,] GlobalGrid;
     List<Transform> AgentList;
     List<CC_AgentData> AgentData;
 
+    // debug data
     List<Transform> Db_TileList;
     List<TextMesh> Db_TextList;
     List<MeshRenderer> Db_MeshList;
@@ -62,112 +83,22 @@ public class CC_Grid : Singleton<CC_Grid> {
         }
     }
 
-    void InitDebug()
-    {
-        if (holder)
-        {
-            foreach(Transform obj in Db_TileList)
-            {
-                Destroy(obj.gameObject);
-            }
-            Destroy(holder);
-        }
-
-        Db_TileList = new List<Transform>();
-        Db_TextList = new List<TextMesh>();
-        Db_MeshList = new List<MeshRenderer>();
-
-        Db_TextGrid = new TextMesh[Width, Height];
-        Db_MeshGrid = new MeshRenderer[Width, Height];
-
-        holder = new GameObject("DebugHolder");
-    }
-
-    void SetUpDebug(int x, int y, Vector3 WorldPos)
-    {
-        WorldPos.z += 0.25f;
-        GameObject dbTile = (GameObject)Instantiate(
-            Resources.Load("DebugTile"),
-            WorldPos,
-            Quaternion.identity);
-
-        dbTile.transform.localScale = 
-            new Vector3(Utility.Instance.TileWidth,
-            Utility.Instance.TileHeight,
-            0.13f);
-
-        //transform
-        Db_TileList.Add(dbTile.transform);
-
-        // debug text
-        TextMesh text = dbTile.transform.GetChild(0).GetComponent<TextMesh>();
-        text.text = new Vector2((float)x, (float)y).ToString();
-        Db_TextList.Add(text);
-        Db_TextGrid[x, y] = text;
-
-        // debug mesh (for coloring)
-        MeshRenderer mesh = dbTile.GetComponent<MeshRenderer>();
-        Db_MeshList.Add(mesh);
-        Db_MeshGrid[x, y] = mesh;
-
-        dbTile.transform.parent = holder.transform;
-
-    }
-
-    void Debug()
-    {
-        if (Utility.Instance.DebugInfo == false && debugOn == true)
-        {
-            foreach(MeshRenderer obj in Db_MeshList)
-            {
-                obj.enabled = false;
-            }
-            foreach(TextMesh obj in Db_TextList)
-            {
-                obj.transform.GetComponent<MeshRenderer>().enabled = false;
-            }
-            debugOn = false;
-        }
-        
-        if (Utility.Instance.DebugInfo == true && debugOn == false)
-        {
-            foreach (MeshRenderer obj in Db_MeshList)
-            {
-                obj.enabled = true;
-            }
-            foreach (TextMesh obj in Db_TextList)
-            {
-                obj.transform.GetComponent<MeshRenderer>().enabled = true;
-            }
-            debugOn = true;
-        }
-
-        if (Utility.Instance.DebugInfo == true)
-        {
-            if (DensityText == true)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    for (int y = 0; y < Height; y++)
-                    {
-                        float density = GlobalGrid[x, y].Density;
-                        string den = density.ToString("F2");
-                        Db_TextGrid[x, y].text = den;
-            }
-                }
-            }
-        }
-    }
-
     void Start()
     {
+        // get map width/height
         Width = (int)Utility.Instance.Width;
         Height = (int)Utility.Instance.Height;
+
+        // initialize grid and cell list
         GlobalGrid = new CC_GlobalCell[Width, Height];
         GlobalCellList = new List<CC_GlobalCell>();
 
+        // set density min
+        DensityMin = 1f / Mathf.Pow(2f, Lambda);
+
         InitDebug();
 
+        // put data in global grid
         for(int x = 0; x < Width; x++)
         {
             for (int y = 0; y < Height; y++)
@@ -176,12 +107,13 @@ public class CC_Grid : Singleton<CC_Grid> {
                 Vector3 WorldPos = Utility.Instance.CoordToVec3(x, y);
                 CC_GlobalCell newGC = new CC_GlobalCell(WorldPos,coord);
                 GlobalGrid[x, y] = newGC;
+                GlobalGrid[x, y].Height = WorldPos.z;
                 GlobalCellList.Add(newGC);
                 SetUpDebug(x, y, WorldPos);
             }
         }
 
-
+        // get agent data that pertains to contuum crowd data
         AgentList = AgentManager.Instance.agentTransforms;
         AgentData = new List<CC_AgentData>();
         foreach(Transform obj in AgentList)
@@ -189,209 +121,45 @@ public class CC_Grid : Singleton<CC_Grid> {
             AgentData.Add(obj.GetComponent<CC_AgentData>());
         }
 
-    }
-
-    void DensityConversion()
-    {
-        foreach(CC_AgentData agent in AgentData)
+        // set up group grid(s)
+        GroupGridList = new List<CC_GridCell[,]>();
+        int agentPerGroup = AgentList.Count / GroupNumber;
+        for (int i = 0; i < GroupNumber; i++)
         {
-            // not sure if its talking about cell coord or world coords
-
-            // Grid Setup
-            //  D | C
-            // -------
-            //  A | B
-
-            Vector3 agentWorld = agent.transform.position;
-            Vector3 coord = Utility.Instance.Vec3ToCoord(agentWorld);
-            int Cx = (int)coord.x;
-            int Cy = (int)coord.y;
-
-            int Dx = Cx;
-            int Dy = Cy;
-            int Bx = Cx;
-            int By = Cy;
-            int Ax = Cx;
-            int Ay = Cy;
-            bool dontUseDA = false;
-            bool dontUseBA = false;
-
-            // check if 0 on x axis
-            if (Cx <= 0)
+            GroupGridList.Add(new CC_GridCell[Width, Height]);
+            for (int x = 0; x < Width; x++)
             {
-                Dx = 0;
-                Ax = 0;
-                dontUseDA = true;
-            }
-            else
-            {
-                Dx--;
-                Ax--;
-            }
-            //check if 0 on y axis
-            if (Cy <= 0)
-            {
-                By = 0;
-                Ay = 0;
-                dontUseBA = true;
-            }
-            else
-            {
-                By--;
-                Ay--;
-            }
-
-            float invX;
-            float invY;
-
-            float densityC;
-            float densityA;
-            float densityB;
-            float densityD;
-
-            Vector3 cWorld = GlobalGrid[Cx, Cy].WorldPos;
-            Vector3 dWorld = GlobalGrid[Dx, Dy].WorldPos;
-            Vector3 bWorld = GlobalGrid[Bx, By].WorldPos;
-            Vector3 aWorld = GlobalGrid[Ax, Ay].WorldPos;
-
-            Vector3 minCellWorld = GlobalGrid[Ax, Ay].WorldPos;
-            float deltaX = agentWorld.x - minCellWorld.x;
-            float deltaY = agentWorld.y - minCellWorld.y;
-
-
-            // coord [0,0] on grid
-            if (dontUseBA && dontUseDA)
-            {
-                // case if we only use C cell
-                //deltaX = cWorld.x - agentWorld.x;
-                //deltaY = cWorld.y - agentWorld.y;
-
-                // case if we use coord [-1,-1] for "min" cell
-                Vector3 negMinCell = Utility.Instance.CoordToVec3(-1, -1);
-                deltaX = agentWorld.x - negMinCell.x;
-                deltaY = agentWorld.y - negMinCell.y;
-
-                densityC = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda);
-                GlobalGrid[Cx, Cy].Density += densityC;
-                continue;
-            }
-
-            // case #1: agent is below (in both x & y) it current cell's center
-            if (agentWorld.x <= cWorld.x && agentWorld.y <= cWorld.y)
-            {
-                // coord [0,y] on grid
-                if (dontUseDA)
+                for (int y = 0; y < Height; y++)
                 {
-                    // case if we use coord [-1,y-1] for "min" cell
-                    Vector3 negMinCell = Utility.Instance.CoordToVec3(-1, By);
-                    deltaX = agentWorld.x - negMinCell.x;
-                    deltaY = agentWorld.y - negMinCell.y;
-                    densityC = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda);
-                    densityB = Mathf.Pow(Mathf.Min(deltaX,deltaY),Lambda); // fix
-
-                    GlobalGrid[Cx, Cy].Density += densityC;
-                    GlobalGrid[Bx, By].Density += densityB;
-                    continue;
-                }
-                // coord [x,0] on grid
-                else if (dontUseBA)
-                {
-                    Vector3 negMinCell = Utility.Instance.CoordToVec3(Dx, -1);
-                    deltaX = agentWorld.x - negMinCell.x;
-                    deltaY = agentWorld.y - negMinCell.y;
-                    densityC = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda); 
-                    densityD = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda); // fix
-
-                    GlobalGrid[Cx, Cy].Density += densityC;
-                    GlobalGrid[Dx, Dy].Density += densityD;
-                    continue;
-                }
-                // coord [x,y] on grid (from the example)
-                else
-                {
-                    Vector3 negMinCell = aWorld;
-                    deltaX = agentWorld.x - negMinCell.x;
-                    deltaY = agentWorld.y - negMinCell.y;
-                    densityC = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda); 
-                    densityB = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda); // fix
-                    densityA = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda); // fix
-                    densityD = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda); // fix
-
-                    GlobalGrid[Cx, Cy].Density += densityC;
-                    GlobalGrid[Bx, By].Density += densityB;
-                    GlobalGrid[Dx, Dy].Density += densityD;
-                    GlobalGrid[Ax, Ay].Density += densityA;
-                    continue;
+                    Vector2 coord = GlobalGrid[x, y].Coord;
+                    Vector3 worldPos = GlobalGrid[x, y].WorldPos;
+                    GroupGridList[i][x, y] = new CC_GridCell(worldPos, coord);
+                    GroupGridList[i][x, y].East = new CellFaceInfo();
+                    GroupGridList[i][x, y].West = new CellFaceInfo();
+                    GroupGridList[i][x, y].North = new CellFaceInfo();
+                    GroupGridList[i][x, y].South = new CellFaceInfo();
                 }
             }
+        }
 
-            // case #2: agent is above cell center in x-axis but lower on the y
-            else if (agentWorld.x > cWorld.x && agentWorld.y < cWorld.y)
+        // set up group height stuff
+        for (int i = 0; i < GroupNumber; i++)
+        {
+            for (int x = 0; x < Width; x++)
             {
-                // coord [x, 0] on gid
-                if (dontUseBA)
+                for (int y = 0; y < Height; y++)
                 {
-                    Vector3 negMinCell = Utility.Instance.CoordToVec3(Cx, -1);
-                    deltaX = agentWorld.x - negMinCell.x;
-                    deltaY = agentWorld.y - negMinCell.y;
-                    densityC = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda);
+                    GroupGridList[i][x, y].East.DeltaHeight =
+                        HeightDifference(x, y, Vector2.right);
 
-                    GlobalGrid[Cx, Cy].Density += densityC;
-                    continue;
-                }
-                // coord [x,y] on grid
-                else
-                {
-                    Vector3 negMinCell = bWorld;
-                    deltaX = agentWorld.x - negMinCell.x;
-                    deltaY = agentWorld.y - negMinCell.y;
-                    densityC = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda);
-                    densityB = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda); // fix
+                    GroupGridList[i][x, y].West.DeltaHeight =
+                        HeightDifference(x, y, Vector2.left);
 
-                    GlobalGrid[Cx, Cy].Density += densityC; 
-                    GlobalGrid[Bx, By].Density += densityB; // fix
-                    continue;
-                }
-            }
+                    GroupGridList[i][x, y].North.DeltaHeight =
+                        HeightDifference(x, y, Vector2.up);
 
-            // case #3: both x & y of agent are above its current cells center
-            else if (agentWorld.x > cWorld.x && agentWorld.y > cWorld.y)
-            {
-                Vector3 negMinCell = cWorld;
-                deltaX = agentWorld.x - negMinCell.x;
-                deltaY = agentWorld.y - negMinCell.y;
-                densityC = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda);
-
-                GlobalGrid[Cx, Cy].Density += densityC;
-                continue;
-            }
-
-            // case #4: agents x is less than its currents cell and its y is greater
-            else
-            {
-                // coord [0, y] on grid
-                if (dontUseDA)
-                {
-                    Vector3 negMinCell = Utility.Instance.CoordToVec3(-1, Cx);
-                    deltaX = agentWorld.x - negMinCell.x;
-                    deltaY = agentWorld.y - negMinCell.y;
-                    densityC = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda);
-
-                    GlobalGrid[Cx, Cy].Density += densityC;
-                    continue;
-                }
-                // coord [x,y] on grid
-                else
-                {
-                    Vector3 negMinCell = dWorld;
-                    deltaX = agentWorld.x - negMinCell.x;
-                    deltaY = agentWorld.y - negMinCell.y;
-                    densityC = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda);
-                    densityD = Mathf.Pow(Mathf.Min(deltaX, deltaY), Lambda); // fix
-
-                    GlobalGrid[Cx, Cy].Density += densityC;
-                    GlobalGrid[Dx, Dy].Density += densityD;
-                    continue;
+                    GroupGridList[i][x, y].South.DeltaHeight =
+                        HeightDifference(x, y, Vector2.down);
                 }
             }
         }
@@ -414,5 +182,114 @@ public class CC_Grid : Singleton<CC_Grid> {
         ResetGrid();
         DensityConversion();
         Debug();
+    }
+
+    float HeightDifference(int x, int y, Vector2 direction)
+    {
+        Vector2 unitVector = direction.normalized;
+        // angle in degrees
+        float angle = Mathf.Atan2(unitVector.y, unitVector.x) * 180f / Mathf.PI;
+
+        // east
+        if (angle <= 45f && angle >= -45f)
+        {
+            if (x <= 0)
+                return 0f;
+            return GlobalGrid[x - 1, y].Height - GlobalGrid[x, y].Height;
+        }
+        // north
+        else if (angle > 45f && angle <= 135f)
+        {
+            if (y >= Height - 1)
+                return 0f;
+            return GlobalGrid[x, y + 1].Height - GlobalGrid[x, y].Height;
+        }
+        // west
+        else if (angle > 135f && angle <= -135f)
+        {
+            if (x >= Width - 1)
+                return 0f;
+            return GlobalGrid[x + 1, y].Height - GlobalGrid[x, y].Height;
+        }
+        // south (angle > -135 and angle < -45)
+        else
+        {
+            if (y <= 0)
+                return 0f;
+            return GlobalGrid[x, y - 1].Height - GlobalGrid[x, y].Height;
+        }
+        return 0f;
+    }
+
+    Vector2 GetTileInDirection(int x, int y, Vector2 direction)
+    {
+        Vector2 unitVector = direction.normalized;
+
+        // angle in degrees
+        float angle = Mathf.Atan2(unitVector.y, unitVector.x) * 180f / Mathf.PI;
+
+        // east
+        if (angle <= 45f && angle >= -45f)
+        {
+            if (x <= 0)
+                return new Vector2(-1, -1);
+            return new Vector2(x - 1, y);
+        }
+        // north
+        else if (angle > 45f && angle <= 135f)
+        {
+            if (y >= Height - 1)
+                return new Vector2(-1, -1);
+            return new Vector2(x, y + 1);
+        }
+        // west
+        else if (angle > 135f && angle <= -135f)
+        {
+            if (x >= Width - 1)
+                return new Vector2(-1, -1);
+            return new Vector2(x + 1, y);
+        }
+        // south (angle > -135 and angle < -45)
+        else
+        {
+            if (y <= 0)
+                return new Vector2(-1, -1);
+            return new Vector2(x, y - 1);
+        }
+    }
+
+    Vector2 GetTileInDirection(int x, int y, float direction)
+    {
+        // angle in degrees
+        float angle = direction;
+
+        // east
+        if (angle <= 45f && angle >= -45f)
+        {
+            if (x <= 0)
+                return new Vector2(-1, -1);
+            return new Vector2(x - 1, y);
+        }
+        // north
+        else if (angle > 45f && angle <= 135f)
+        {
+            if (y >= Height - 1)
+                return new Vector2(-1, -1);
+            return new Vector2(x, y + 1);
+        }
+        // west
+        else if (angle > 135f && angle <= -135f)
+        {
+            if (x >= Width - 1)
+                return new Vector2(-1, -1);
+            return new Vector2(x + 1, y);
+        }
+        // south (angle > -135 and angle < -45)
+        else
+        {
+            if (y <= 0)
+                return new Vector2(-1, -1);
+            return new Vector2(x, y - 1);
+        }
     }
 }

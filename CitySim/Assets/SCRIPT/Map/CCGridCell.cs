@@ -4,25 +4,33 @@ using UnityEngine;
 
 public class CellFaceInfo
 {
-    public float Speed_; // here to there
-    public float UnitCost_; //here to there
-    public float _Speed; // there to here
-    public float _UnitCost; //there to here
+    public float Speed_HT; // here to there
+    public float UnitCost_HT; //here to there
+    public float TH_Speed; // there to here
+    public float TH_UnitCost; //there to here
 
-    float DeltaHeight; // height difference
-    float GradientPotential; // difference in potential field
-    Vector2 Velocity; 
+    public float DeltaHeight; // height difference
+    public float GradientPotential; // difference in potential field
+    public Vector2 Velocity; 
 }
 
 public class CC_GridCell {
-
-    CellFaceInfo East;
-    CellFaceInfo West;
-    CellFaceInfo South;
-    CellFaceInfo North;
-
     
-    float Potential;
+    public CC_GridCell(Vector3 worldPos, Vector2 Coordinate)
+    {
+        WorldPos = worldPos;
+        Coord = Coordinate;
+    }
+
+    public Vector3 WorldPos;
+    public Vector2 Coord;
+
+    public CellFaceInfo East;
+    public CellFaceInfo West;
+    public CellFaceInfo South;
+    public CellFaceInfo North;
+
+    public float Potential;
 }
 
 public class CC_GlobalCell
