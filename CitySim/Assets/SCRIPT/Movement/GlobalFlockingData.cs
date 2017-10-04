@@ -16,10 +16,10 @@ public class GlobalFlockingData : Singleton<GlobalFlockingData> {
     public float AlignmentRadius = 0.75f;
     public float SeperationRadius = 0.5f;
 
-    public float CohesionInfuence = 0.5f;
-    public float AlignmentInfluence = 0.2f;
+    public float CohesionInfuence = 0.2f;
+    public float AlignmentInfluence = 0.1f;
     public float SeperationInfuence = 40f;
-    public float WanderingInfuence = 0.5f;
+    public float WanderingInfuence = 0.0f;
 
     public float Speed = 3f;
 

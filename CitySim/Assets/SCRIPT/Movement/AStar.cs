@@ -55,14 +55,12 @@ public class AStar : Singleton<AStar> {
 
     void GivePath()
     {
-        foreach(GameObject unit in agents)
+        foreach (GameObject unit in agents)
         {
             unit.SendMessage("SetWaypointList",
                 finalPathVec3,
                 SendMessageOptions.DontRequireReceiver);
         }
-        
-        List<Vector3> buff = finalPathVec3;
     }
 
     public void NewRequest(Vector3 Start, Vector3 Goal, GameObject Agent)
@@ -238,9 +236,9 @@ public class AStar : Singleton<AStar> {
         int minY = Mathf.Min(start.Y, end.Y);
         int maxY = Mathf.Max(start.Y, end.Y);
 
-        for (int x = minX; x < maxX; x++)
+        for (int x = minX; x <= maxX; x++)
         {
-            for (int y = minY; y < maxY; y++)
+            for (int y = minY; y <= maxY; y++)
             {
                 if (grid[x, y].Wall)
                     return false;
@@ -251,6 +249,9 @@ public class AStar : Singleton<AStar> {
 
     public void ConstructPath(Tile tile)
     {
+        if (goal == origin)
+            return;
+
         finalPath.Add(tile);
         finalPathVec3.Add(Utility.Instance.CoordToVec3(tile.X, tile.Y));
         Tile walker = tile.Parent;
@@ -263,6 +264,33 @@ public class AStar : Singleton<AStar> {
 
         finalPathVec3.Insert(0, Utility.Instance.CoordToVec3(origin.X, origin.Y));
         finalPath.Insert(0, origin);
+
+        if (MovementManager.Instance.UseRubberbanding == true)
+        {
+            for (int i = 0; i < finalPath.Count; i++)
+            {
+                int count = 0;
+                for (int k = i+1; k < finalPath.Count;k++)
+                {
+                    count++;
+                    if (count == 1)
+                    {
+                        if (!isOpen(finalPath[i], finalPath[k]))
+                            break;
+                    }
+                    else if (count == 2)
+                    {
+                        if (isOpen(finalPath[i], finalPath[k]))
+                        {
+                            finalPath.RemoveAt(k - 1);
+                            finalPathVec3.RemoveAt(k - 1);
+                            i--;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     public Tile GetBestOnOpenList()

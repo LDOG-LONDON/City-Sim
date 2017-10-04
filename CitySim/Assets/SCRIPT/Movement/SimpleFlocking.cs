@@ -24,6 +24,7 @@ public class SimpleFlocking : MonoBehaviour {
     private bool toCloseToGoal=false;
 
     Rigidbody myBody;
+    LineRenderer line;
 
     void Start () {
 
@@ -36,7 +37,8 @@ public class SimpleFlocking : MonoBehaviour {
 
         myBody = GetComponent<Rigidbody>();
         Goal = Utility.Instance.CoordToVec3(Utility.Instance.Width / 2, Utility.Instance.Height / 2);
-
+        transform.SendMessage("SetWaypoint", Goal,SendMessageOptions.DontRequireReceiver);
+        line = GetComponent<LineRenderer>();
         randOffset = Random.Range(0f, 1f);
     }
 	
@@ -170,10 +172,10 @@ public class SimpleFlocking : MonoBehaviour {
 
     void TowardsGoal()
     {
-        float distFromGoal = (Goal - transform.position).magnitude;
+        //float distFromGoal = (Goal - transform.position).magnitude;
 
-        if (distFromGoal < 0.2f)
-            return;
+        //if (distFromGoal < 0.2f)
+        //    return;
 
         //if (GlobalFlockingData.Instance.UseNormalizedVectors == true)
         //if (moveTowards.sqrMagnitude > 1f)
@@ -185,7 +187,21 @@ public class SimpleFlocking : MonoBehaviour {
 	void Update () {
         if (!MovementManager.Instance.UseSimpleFlocking)
             return;
+        DB_Line dbline = DebugManager.Instance.DebugLine;
 
+
+        // for debug drawing
+        if (dbline == DB_Line.AgentGoal)
+        {
+            line.positionCount = 2;
+            line.SetPosition(0, transform.position + Vector3.forward * 0.0f);
+            line.SetPosition(1, Goal + Vector3.forward * 0.0f);
+            line.enabled = true;
+        }
+
+
+
+        // for movement
         Cohesion();
         Seperation();
         Alignment();
@@ -197,7 +213,6 @@ public class SimpleFlocking : MonoBehaviour {
             cohesion * GlobalFlockingData.Instance.CohesionInfuence +
             seperation * GlobalFlockingData.Instance.SeperationInfuence +
             wandering * GlobalFlockingData.Instance.WanderingInfuence;
-
 
         myBody.velocity += vel.normalized * 0.1f;
         if (myBody.velocity.magnitude > GlobalFlockingData.Instance.Speed)

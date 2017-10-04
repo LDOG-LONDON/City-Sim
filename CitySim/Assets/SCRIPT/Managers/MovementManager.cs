@@ -10,5 +10,6 @@ public class MovementManager : Singleton<MovementManager> {
     public bool UseSimpleNavigation;
     public bool UseContinuumCrowd;
     public bool UseAStar = true;
+    public bool UseRubberbanding = true;
 
 }

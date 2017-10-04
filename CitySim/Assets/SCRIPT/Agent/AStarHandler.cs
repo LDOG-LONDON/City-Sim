@@ -10,6 +10,7 @@ public class AStarHandler : MonoBehaviour {
     bool isSelected = false;
     bool waypointSet = false;
     Vector3 currentWaypoint;
+    LineRenderer line;
 
     public void OnSelect()
     {
@@ -24,6 +25,10 @@ public class AStarHandler : MonoBehaviour {
     void Start()
     {
         radiusSq = acceptableRadius * acceptableRadius;
+        line = GetComponent<LineRenderer>();
+        line.startWidth = 0.2f;
+        line.endWidth = 0.1f;
+        line.enabled = false;
     }
 
     void SetWaypointList(List<Vector3> waypoints)
@@ -34,6 +39,13 @@ public class AStarHandler : MonoBehaviour {
         {
             WaypointList.Add(new Vector3(vec.x,vec.y,vec.z));
         }
+        line.positionCount = WaypointList.Count;
+        for (int i = 0; i < WaypointList.Count; i++)
+        {
+            line.SetPosition(i, WaypointList[i] + Vector3.forward * 0.4f);
+        }
+        //line.SetPositions(WaypointList.ToArray());
+       
     }
 
     void Update()
@@ -41,6 +53,21 @@ public class AStarHandler : MonoBehaviour {
         if (MovementManager.Instance.UseAStar == false)
             return;
 
+        DB_Line dbline = DebugManager.Instance.DebugLine;
+
+        // for debug line drawing
+        if (dbline == DB_Line.Astar)
+        {
+            if (WaypointList.Count > 0)
+                line.enabled = true;
+            else
+                line.enabled = false;
+        }
+        else if (dbline != DB_Line.AgentGoal)
+            line.enabled = false;
+            
+
+        // for movement
         if (WaypointList.Count > 0)
         {
             if (waypointSet == false)

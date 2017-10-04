@@ -17,6 +17,11 @@ public partial class CC_Grid : Singleton<CC_Grid> {
 
     private GameObject holder;
 
+    // weights for unit costs
+    public float DistanceWeight = 1f;
+    public float TimeWeight = 1f;
+    public float DiscomfortWeight = 1f;
+
     // for density
     public float Lambda = 0.5f;
     public float AgentRadius = 1f;
@@ -29,7 +34,7 @@ public partial class CC_Grid : Singleton<CC_Grid> {
     public float SlopeMax = 0.5f;
     // density min and max
     public float DensityMin = 0f;
-    public float DensityMax = 6f;
+    public float DensityMax = 8.5f;
 
     // for groups
     public int GroupNumber = 1;
@@ -49,8 +54,9 @@ public partial class CC_Grid : Singleton<CC_Grid> {
     List<TextMesh> Db_TextList;
     List<MeshRenderer> Db_MeshList;
 
-    TextMesh[,] Db_TextGrid;
+    List<TextMesh>[,] Db_TextGrid;
     MeshRenderer[,] Db_MeshGrid;
+    LineRenderer[,] Db_LineGrid;
 
     public void Load()
     {
@@ -181,6 +187,7 @@ public partial class CC_Grid : Singleton<CC_Grid> {
     {
         ResetGrid();
         DensityConversion();
+        UnitCost();
         Debug();
     }
 

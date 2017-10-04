@@ -60,49 +60,102 @@ public partial class CC_Grid {
             return FlowSpeed(worldPos, AvgVel);
     }
 
+    float GetTileSpeed(int x, int y)
+    {
+        Vector2 worldPos = GlobalGrid[x, y].WorldPos;
+        Vector2 AvgVel = GlobalGrid[x, y].AverageVelocity;
+        float density = GlobalGrid[x, y].Density;
+
+        if (density <= DensityMin)
+            return TopographicalSpeed(worldPos, AvgVel);
+        else if (density > DensityMin && density <= DensityMax)
+            return NormalSpeed(worldPos, AvgVel);
+        else // density >= DensityMax
+            return FlowSpeed(worldPos, AvgVel);
+    }
+
+    float GetTileUnitCost(int x, int y, float speed)
+    {
+        if (speed <= 0f)
+            return Mathf.Infinity;
+        float density = GlobalGrid[x, y].Density;
+        float cost = DistanceWeight * speed + TimeWeight + DistanceWeight * density;
+        cost /= speed;
+        return cost;
+    }
+
+    void GiveSpeed_Cost(int x, int y, int groupNumber, float speed, float cost)
+    {
+        CC_GridCell[,] group = GroupGridList[groupNumber];
+        if (x > 0)
+        {
+            group[x - 1, y].West.Speed = speed;
+            group[x - 1, y].West.UnitCost = cost;
+        }
+            
+        if (x < Width - 1)
+        {
+            group[x + 1, y].East.Speed = speed;
+            group[x + 1, y].East.UnitCost = cost;
+        }
+        if (y > 0)
+        {
+            group[x, y - 1].North.Speed = speed;
+            group[x, y - 1].North.UnitCost = cost;
+        }
+            
+        if (y < Height - 1)
+        {
+            group[x, y + 1].South.Speed = speed;
+            group[x, y + 1].South.UnitCost = cost;
+        }
+            
+    }
+
     void UnitCost()
     {
-        // assuming that the agent is affecting the speed field
-        CC_GridCell[,] groupGrid = GroupGridList[0];
-        foreach (Transform agent in AgentList)
-        {
-            Vector3 agentPos = agent.position;
-            Vector2 agentDir = agent.forward;
-            Vector2 agentCoord = Utility.Instance.Vec3ToCoord(agentPos);
-            int x = (int)agentCoord.x;
-            int y = (int)agentCoord.y;
-            float coordDensity = GlobalGrid[x, y].Density;
-            float speed = 0f;
-
-            if (coordDensity <= DensityMin)
-            {
-                speed = TopographicalSpeed(agentPos, agentDir);
-            }
-            else if (coordDensity >= DensityMin && coordDensity <= DensityMax)
-            {
-                speed = NormalSpeed(agentPos, agentDir);
-            }
-            else // coordDensity >= DensityMax
-            {
-                speed = FlowSpeed(agentPos, agentDir);
-            }
-        }
+      // // assuming that the agent is affecting the speed field
+      // CC_GridCell[,] groupGrid = GroupGridList[0];
+      // foreach (Transform agent in AgentList)
+      // {
+      //     Vector3 agentPos = agent.position;
+      //     Vector2 agentDir = agent.forward;
+      //     Vector2 agentCoord = Utility.Instance.Vec3ToCoord(agentPos);
+      //     int x = (int)agentCoord.x;
+      //     int y = (int)agentCoord.y;
+      //     float coordDensity = GlobalGrid[x, y].Density;
+      //     float speed = 0f;
+      //
+      //     if (coordDensity <= DensityMin)
+      //     {
+      //         speed = TopographicalSpeed(agentPos, agentDir);
+      //     }
+      //     else if (coordDensity >= DensityMin && coordDensity <= DensityMax)
+      //     {
+      //         speed = NormalSpeed(agentPos, agentDir);
+      //     }
+      //     else // coordDensity >= DensityMax
+      //     {
+      //         speed = FlowSpeed(agentPos, agentDir);
+      //     }
+      // }
 
         // assuming that the grid cell is affecting speed field
-        for (int x = 0; x < Width; x++)
+        for (int i = 0; i < GroupGridList.Count; i++)
         {
-            for (int y = 0; y < Height; y++)
+            for (int x = 0; x < Width; x++)
             {
-                Vector3 worldPos = GlobalGrid[x, y].WorldPos;
-                float cellDensity = GlobalGrid[x, y].Density;
-                Vector2 cellVelocity = GlobalGrid[x, y].AverageVelocity;
-                float speedEast = 0f;
-                float speedWest = 0f;
-                float speedNorth = 0f;
-                float speedSouth = 0f;
-
-                
+                for (int y = 0; y < Height; y++)
+                {
+                    int GroupNumber = i;
+                    float tileSpeed = GetTileSpeed(x, y);
+                    float tileCost = GetTileUnitCost(x, y, tileSpeed);
+                    GroupGridList[GroupNumber][x, y].Speed = tileSpeed;
+                    GroupGridList[GroupNumber][x, y].UnitCost = tileCost;
+                    GiveSpeed_Cost(x, y, GroupNumber, tileSpeed,tileCost);
+                }
             }
         }
+        
     }
 }
