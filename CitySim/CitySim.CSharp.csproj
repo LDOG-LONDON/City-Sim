@@ -95,6 +95,7 @@
     <Compile Include="Assets\SCRIPT\Map\CC_Grid.cs" />
     <Compile Include="Assets\SCRIPT\Map\CC_Grid.Debug.cs" />
     <Compile Include="Assets\SCRIPT\Map\CC_Grid.Density.cs" />
+    <Compile Include="Assets\SCRIPT\Map\CC_Grid.Potential.cs" />
     <Compile Include="Assets\SCRIPT\Map\CC_Grid.UnitCost.cs" />
     <Compile Include="Assets\SCRIPT\Map\CCGridCell.cs" />
     <Compile Include="Assets\SCRIPT\Map\Map.cs" />

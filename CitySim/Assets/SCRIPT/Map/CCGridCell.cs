@@ -12,6 +12,13 @@ public class CellFaceInfo
     public Vector2 Velocity; 
 }
 
+public enum PotentialType
+{
+    Known,
+    Candidate,
+    Unknown,
+};
+
 public class CC_GridCell {
     
     public CC_GridCell(Vector3 worldPos, Vector2 Coordinate)
@@ -20,6 +27,7 @@ public class CC_GridCell {
         Coord = Coordinate;
     }
 
+    // used data
     public Vector3 WorldPos;
     public Vector2 Coord;
 
@@ -27,11 +35,26 @@ public class CC_GridCell {
     public CellFaceInfo West;
     public CellFaceInfo South;
     public CellFaceInfo North;
+    
 
+    // for Fast Marching Method
+    public int iteration = -1;
+    public float Potential;
+    public PotentialType type = PotentialType.Unknown;
+    // heap
+
+    // for debug
     public float Speed;
     public float UnitCost;
+}
 
-    public float Potential;
+public class CC_GroupGrid
+{
+    public CC_GridCell[,] Grid;
+    public List<Vector2> Goals;
+    public int iteration = 0;
+    public int GroupNumber;
+    public List<CC_GridCell> heap;
 }
 
 public class CC_GlobalCell

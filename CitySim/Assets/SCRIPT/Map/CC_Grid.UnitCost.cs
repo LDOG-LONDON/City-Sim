@@ -86,7 +86,7 @@ public partial class CC_Grid {
 
     void GiveSpeed_Cost(int x, int y, int groupNumber, float speed, float cost)
     {
-        CC_GridCell[,] group = GroupGridList[groupNumber];
+        CC_GridCell[,] group = GroupGridList[groupNumber].Grid;
         if (x > 0)
         {
             group[x - 1, y].West.Speed = speed;
@@ -112,7 +112,7 @@ public partial class CC_Grid {
             
     }
 
-    void UnitCost()
+    void UnitCost(int groupNumber)
     {
       // // assuming that the agent is affecting the speed field
       // CC_GridCell[,] groupGrid = GroupGridList[0];
@@ -141,21 +141,18 @@ public partial class CC_Grid {
       // }
 
         // assuming that the grid cell is affecting speed field
-        for (int i = 0; i < GroupGridList.Count; i++)
+      
+        CC_GroupGrid group = GroupGridList[groupNumber];
+        for (int x = 0; x < Width; x++)
         {
-            for (int x = 0; x < Width; x++)
+            for (int y = 0; y < Height; y++)
             {
-                for (int y = 0; y < Height; y++)
-                {
-                    int GroupNumber = i;
-                    float tileSpeed = GetTileSpeed(x, y);
-                    float tileCost = GetTileUnitCost(x, y, tileSpeed);
-                    GroupGridList[GroupNumber][x, y].Speed = tileSpeed;
-                    GroupGridList[GroupNumber][x, y].UnitCost = tileCost;
-                    GiveSpeed_Cost(x, y, GroupNumber, tileSpeed,tileCost);
-                }
+                float tileSpeed = GetTileSpeed(x, y);
+                float tileCost = GetTileUnitCost(x, y, tileSpeed);
+                group.Grid[x, y].Speed = tileSpeed;
+                group.Grid[x, y].UnitCost = tileCost;
+                GiveSpeed_Cost(x, y, groupNumber, tileSpeed,tileCost);
             }
         }
-        
     }
 }

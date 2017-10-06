@@ -53,8 +53,8 @@ public class AgentCoordDraw : MonoBehaviour {
 
 		if (map != null)
         {
-            if (body.velocity.sqrMagnitude <= 0.01)
-                return;
+           //if (body.velocity.sqrMagnitude <= 0.01)
+           //    return;
 
             coord = Utility.Instance.Vec3ToCoord(transform.position);
             nextTile = map.Grid[(int)coord.x, (int)coord.y];

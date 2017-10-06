@@ -162,9 +162,14 @@ public partial class CC_Grid {
                         debug = density.ToString("F2");
                     else if (textType == DB_Text.Height)
                         debug = height.ToString("F2");
+                    else if (textType == DB_Text.Potential)
+                    {
+                        CC_GridCell[,] group = GroupGridList[CCGroup].Grid;
+                        debug = group[x, y].Potential.ToString("F2");
+                    }
                     else if (textType == DB_Text.CostFields)
                     {
-                        CC_GridCell[,] group = GroupGridList[CCGroup];
+                        CC_GridCell[,] group = GroupGridList[CCGroup].Grid;
                         //north = group[x, y].North.UnitCost.ToString("F2");
                         //south = group[x, y].South.UnitCost.ToString("F2");
                         //west = group[x, y].West.UnitCost.ToString("F2");
@@ -173,7 +178,7 @@ public partial class CC_Grid {
                     }
                     else if (textType == DB_Text.SpeedFields)
                     {
-                        CC_GridCell[,] group = GroupGridList[CCGroup];
+                        CC_GridCell[,] group = GroupGridList[CCGroup].Grid;
                         //north = group[x, y].North.Speed.ToString("F2");
                         //south = group[x, y].South.Speed.ToString("F2");
                         //west = group[x, y].West.Speed.ToString("F2");
@@ -192,6 +197,22 @@ public partial class CC_Grid {
                     Db_TextGrid[x, y][3].text = south;
                     Db_TextGrid[x, y][4].text = east;
                 }
+            }
+        }
+    }
+
+    void ChangeDebugTileColor(int x, int y, Color color)
+    {
+        Db_MeshGrid[x, y].material.color = color;
+    }
+
+    void ClearDebugTileColor()
+    {
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                ChangeDebugTileColor(x, y, Color.white);
             }
         }
     }

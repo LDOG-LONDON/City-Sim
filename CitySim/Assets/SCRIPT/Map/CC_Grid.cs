@@ -37,9 +37,9 @@ public partial class CC_Grid : Singleton<CC_Grid> {
     public float DensityMax = 8.5f;
 
     // for groups
-    public int GroupNumber = 1;
+    public int GroupCount = 1;
     public int currentGroupIndex = 0;
-    List<CC_GridCell[,]> GroupGridList;
+    List<CC_GroupGrid> GroupGridList;
 
 
 
@@ -57,6 +57,8 @@ public partial class CC_Grid : Singleton<CC_Grid> {
     List<TextMesh>[,] Db_TextGrid;
     MeshRenderer[,] Db_MeshGrid;
     LineRenderer[,] Db_LineGrid;
+
+    bool SingleStep = true;
 
     public void Load()
     {
@@ -128,43 +130,48 @@ public partial class CC_Grid : Singleton<CC_Grid> {
         }
 
         // set up group grid(s)
-        GroupGridList = new List<CC_GridCell[,]>();
-        int agentPerGroup = AgentList.Count / GroupNumber;
-        for (int i = 0; i < GroupNumber; i++)
+        GroupGridList = new List<CC_GroupGrid>();
+        int agentPerGroup = AgentList.Count / GroupCount;
+        for (int i = 0; i < GroupCount; i++)
         {
-            GroupGridList.Add(new CC_GridCell[Width, Height]);
+            CC_GroupGrid groupGrid = new CC_GroupGrid();
+            groupGrid.Goals = new List<Vector2>();
+            groupGrid.heap = new List<CC_GridCell>();
+            groupGrid.Grid = new CC_GridCell[Width, Height];
+            groupGrid.GroupNumber = i;
+            GroupGridList.Add(groupGrid);
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
                 {
                     Vector2 coord = GlobalGrid[x, y].Coord;
                     Vector3 worldPos = GlobalGrid[x, y].WorldPos;
-                    GroupGridList[i][x, y] = new CC_GridCell(worldPos, coord);
-                    GroupGridList[i][x, y].East = new CellFaceInfo();
-                    GroupGridList[i][x, y].West = new CellFaceInfo();
-                    GroupGridList[i][x, y].North = new CellFaceInfo();
-                    GroupGridList[i][x, y].South = new CellFaceInfo();
+                    GroupGridList[i].Grid[x, y] = new CC_GridCell(worldPos, coord);
+                    GroupGridList[i].Grid[x, y].East = new CellFaceInfo();
+                    GroupGridList[i].Grid[x, y].West = new CellFaceInfo();
+                    GroupGridList[i].Grid[x, y].North = new CellFaceInfo();
+                    GroupGridList[i].Grid[x, y].South = new CellFaceInfo();
                 }
             }
         }
 
         // set up group height stuff
-        for (int i = 0; i < GroupNumber; i++)
+        for (int i = 0; i < GroupCount; i++)
         {
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    GroupGridList[i][x, y].East.DeltaHeight =
+                    GroupGridList[i].Grid[x, y].East.DeltaHeight =
                         HeightDifference(x, y, Vector2.right);
 
-                    GroupGridList[i][x, y].West.DeltaHeight =
+                    GroupGridList[i].Grid[x, y].West.DeltaHeight =
                         HeightDifference(x, y, Vector2.left);
 
-                    GroupGridList[i][x, y].North.DeltaHeight =
+                    GroupGridList[i].Grid[x, y].North.DeltaHeight =
                         HeightDifference(x, y, Vector2.up);
 
-                    GroupGridList[i][x, y].South.DeltaHeight =
+                    GroupGridList[i].Grid[x, y].South.DeltaHeight =
                         HeightDifference(x, y, Vector2.down);
                 }
             }
@@ -187,7 +194,11 @@ public partial class CC_Grid : Singleton<CC_Grid> {
     {
         ResetGrid();
         DensityConversion();
-        UnitCost();
+        for (int i = 0; i < GroupGridList.Count; i++)
+        {
+            UnitCost(i);
+            Potential(i);
+        }
         Debug();
     }
 
