@@ -26,7 +26,8 @@ public class SimpleNavigation : MonoBehaviour {
 	
 	void Update () {
 
-        if (!MovementManager.Instance.UseSimpleNavigation)
+        MV_Type type = MovementManager.Instance.MoveType;
+        if (type != MV_Type.SimpleNav)
             return;
 
 		if (goTowards)

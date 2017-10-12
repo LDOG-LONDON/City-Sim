@@ -14,6 +14,7 @@ public partial class CC_Grid : Singleton<CC_Grid> {
     private bool debugOn = true;
     public bool DensityText = false;
 
+    public int RunCount = 1;
 
     private GameObject holder;
 
@@ -23,18 +24,18 @@ public partial class CC_Grid : Singleton<CC_Grid> {
     public float DiscomfortWeight = 1f;
 
     // for density
-    public float Lambda = 0.5f;
+    public float Lambda = 0.1f;
     public float AgentRadius = 1f;
 
     // speed min and max
     public float Fmin = 0f;
-    public float Fmax = 10f;
+    public float Fmax = 5f;
     // slope min and max
     public float SlopeMin = -0.5f;
     public float SlopeMax = 0.5f;
     // density min and max
     public float DensityMin = 0f;
-    public float DensityMax = 8.5f;
+    public float DensityMax = 5.5f;
 
     // for groups
     public int GroupCount = 1;
@@ -47,6 +48,7 @@ public partial class CC_Grid : Singleton<CC_Grid> {
     List<CC_GlobalCell> GlobalCellList;
     CC_GlobalCell[,] GlobalGrid;
     List<Transform> AgentList;
+    List<Rigidbody> AgentBodys;
     List<CC_AgentData> AgentData;
 
     // debug data
@@ -57,6 +59,9 @@ public partial class CC_Grid : Singleton<CC_Grid> {
     List<TextMesh>[,] Db_TextGrid;
     MeshRenderer[,] Db_MeshGrid;
     LineRenderer[,] Db_LineGrid;
+    List<LineRenderer>[,] Db_VelocitiesGrid;
+
+    List<CC_GridCell> GoalList;
 
     bool SingleStep = true;
 
@@ -84,6 +89,7 @@ public partial class CC_Grid : Singleton<CC_Grid> {
 
 
         AgentList = AgentManager.Instance.agentTransforms;
+        AgentBodys = AgentManager.Instance.agentBodys;
         AgentData = new List<CC_AgentData>();
         foreach (Transform obj in AgentList)
         {
@@ -93,6 +99,9 @@ public partial class CC_Grid : Singleton<CC_Grid> {
 
     void Start()
     {
+        //delete later
+        GoalList = new List<CC_GridCell>();
+
         // get map width/height
         Width = (int)Utility.Instance.Width;
         Height = (int)Utility.Instance.Height;
@@ -123,6 +132,7 @@ public partial class CC_Grid : Singleton<CC_Grid> {
 
         // get agent data that pertains to contuum crowd data
         AgentList = AgentManager.Instance.agentTransforms;
+        AgentBodys = AgentManager.Instance.agentBodys;
         AgentData = new List<CC_AgentData>();
         foreach(Transform obj in AgentList)
         {
@@ -192,14 +202,19 @@ public partial class CC_Grid : Singleton<CC_Grid> {
 
     void Update()
     {
-        ResetGrid();
-        DensityConversion();
-        for (int i = 0; i < GroupGridList.Count; i++)
+        for (int k = 0; k < RunCount; k++)
         {
-            UnitCost(i);
-            Potential(i);
+            ResetGrid();
+            DensityConversion();
+            for (int i = 0; i < GroupGridList.Count; i++)
+            {
+                UnitCost(i);
+                Potential(i);
+                Movement(i);
+            }
+            Debug();
         }
-        Debug();
+        
     }
 
     float HeightDifference(int x, int y, Vector2 direction)

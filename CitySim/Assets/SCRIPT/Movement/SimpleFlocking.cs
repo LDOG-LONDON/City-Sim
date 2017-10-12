@@ -185,7 +185,9 @@ public class SimpleFlocking : MonoBehaviour {
     }
 
 	void Update () {
-        if (!MovementManager.Instance.UseSimpleFlocking)
+
+        MV_Type type = MovementManager.Instance.MoveType;
+        if (type != MV_Type.Flocking)
             return;
         DB_Line dbline = DebugManager.Instance.DebugLine;
 

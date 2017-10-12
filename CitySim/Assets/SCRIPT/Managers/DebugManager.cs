@@ -9,6 +9,7 @@ public enum DB_Text
     AverageVelocity,
     Height,
     Potential,
+    PotentialGradients,
     SpeedFields,
     CostFields,
     DeltaHeights,
@@ -21,6 +22,7 @@ public enum DB_Line
     Astar,
     AgentGoal,
     AverageVelocity,
+    CellVelocity,
     MAX
 };
 
@@ -30,6 +32,8 @@ public enum DB_Color
     Density,
     AverageVelocity,
     Height,
+    Speed,
+    UnitCost,
     Potential,
     MAX
 };
@@ -46,10 +50,11 @@ public class DebugManager : Singleton<DebugManager> {
 
     protected DebugManager() {}
 
-    public DB_Line DebugLine;
-    public DB_Text DebugText;
-    public DB_Color DebugColor;
+    public DB_Line DebugLine = DB_Line.NONE;
+    public DB_Text DebugText = DB_Text.NONE;
+    public DB_Color DebugColor = DB_Color.Density;
     public DB_AStar DebugAStar;
+    public bool CellFaceVelocities = false;
 
     public int DB_CCGroupNumber = 0;
 

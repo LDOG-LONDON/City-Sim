@@ -21,11 +21,13 @@ public partial class CC_Grid {
         Db_LineGrid = new LineRenderer[Width, Height];
 
         Db_TextGrid = new List<TextMesh>[Width, Height];
-        for(int x = 0; x < Width; x++)
+        Db_VelocitiesGrid = new List<LineRenderer>[Width, Height];
+        for (int x = 0; x < Width; x++)
         {
             for (int y = 0; y < Height; y++)
             {
-                Db_TextGrid[x,y] = new List<TextMesh>();
+                Db_TextGrid[x, y] = new List<TextMesh>();
+                Db_VelocitiesGrid[x, y] = new List<LineRenderer>();
             }
         }
 
@@ -52,23 +54,36 @@ public partial class CC_Grid {
 
         // debug text
         TextMesh text = dbTile.transform.GetChild(0).GetComponent<TextMesh>();
+        LineRenderer velocity;
         text.text = new Vector2((float)x, (float)y).ToString();
         Db_TextList.Add(text);
         Db_TextGrid[x, y].Add(text);
-             // north tile text
+        // north tile text & vel
         text = dbTile.transform.GetChild(1).GetComponent<TextMesh>();
+        velocity = text.GetComponent<LineRenderer>();
+        velocity.enabled = false;
+        Db_VelocitiesGrid[x, y].Add(velocity);
         text.text = "";
         Db_TextGrid[x, y].Add(text);
-            // west tile text
+        // west tile text
         text = dbTile.transform.GetChild(2).GetComponent<TextMesh>();
+        velocity = text.GetComponent<LineRenderer>();
+        velocity.enabled = false;
+        Db_VelocitiesGrid[x, y].Add(velocity);
         text.text = "";
         Db_TextGrid[x, y].Add(text);
-            // south tile text
+        // south tile text
         text = dbTile.transform.GetChild(3).GetComponent<TextMesh>();
+        velocity = text.GetComponent<LineRenderer>();
+        velocity.enabled = false;
+        Db_VelocitiesGrid[x, y].Add(velocity);
         text.text = "";
         Db_TextGrid[x, y].Add(text);
-             // east tile text
+        // east tile text
         text = dbTile.transform.GetChild(4).GetComponent<TextMesh>();
+        velocity = text.GetComponent<LineRenderer>();
+        velocity.enabled = false;
+        Db_VelocitiesGrid[x, y].Add(velocity);
         text.text = "";
         Db_TextGrid[x, y].Add(text);
 
@@ -89,7 +104,7 @@ public partial class CC_Grid {
 
     void DrawTileVelocity(int x, int y)
     {
-        Vector3 avgVel = GlobalGrid[x, y].AverageVelocity / 4f;
+        Vector3 avgVel = GlobalGrid[x, y].AverageVelocity;
         Vector3 pos = GlobalGrid[x, y].WorldPos;
         pos.z += 0.5f;
         Vector3 end = pos + avgVel;
@@ -98,10 +113,169 @@ public partial class CC_Grid {
         line.SetPosition(0, pos);
         line.SetPosition(1, end);
     }
+
+    void DrawFaceVelocity(int x, int y, int group)
+    {
+        //CC_GridCell[,] grid = GroupGridList[group].Grid;
+        //CC_GridCell cell = grid[x, y];
+        //
+        //Vector3 velEast = cell.East.Velocity / 4;
+        //Vector3 velWest = cell.West.Velocity / 4;
+        //Vector3 velNorth = cell.North.Velocity / 4;
+        //Vector3 velSouth = cell.South.Velocity /4;
+        //
+        //Vector3 pos = GlobalGrid[x, y].WorldPos;
+        //Vector3 posEast = pos + Vector3.left * 0.2f + Vector3.forward * 0.5f;
+        //Vector3 posWest = pos + Vector3.right * 0.2f + Vector3.forward * 0.5f;
+        //Vector3 posNorth = pos + Vector3.up * 0.2f + Vector3.forward * 0.5f;
+        //Vector3 posSouth = pos + Vector3.down * 0.2f + Vector3.forward * 0.5f;
+        //
+        //LineRenderer vel = Db_VelocitiesGrid[x, y][0];
+        //vel.enabled = true;
+        //vel.positionCount = 2;
+        //vel.SetPosition(0, posNorth);
+        //vel.SetPosition(1, posNorth + velNorth);
+        //
+        //vel = Db_VelocitiesGrid[x, y][1];
+        //vel.enabled = true;
+        //vel.positionCount = 2;
+        //vel.SetPosition(0, posSouth);
+        //vel.SetPosition(1, posSouth + velSouth);
+        //
+        //vel = Db_VelocitiesGrid[x, y][2];
+        //vel.enabled = true;
+        //vel.positionCount = 2;
+        //vel.SetPosition(0, posWest);
+        //vel.SetPosition(1, posWest + velWest);
+        //
+        //vel = Db_VelocitiesGrid[x, y][3];
+        //vel.enabled = true;
+        //vel.positionCount = 2;
+        //vel.SetPosition(0, posEast);
+        //vel.SetPosition(1, posEast + velEast);
+    }
+
+    void DrawCellTotalVelocity(int x, int y, int group)
+    {
+        LineRenderer line = Db_LineGrid[x, y];
+        Vector3 Vel = GroupGridList[group].Grid[x, y].TotalVelocity;
+        Vector3 pos = GlobalGrid[x, y].WorldPos;
+        pos.z += 0.5f;
+        Vector3 end = pos + Vel;
+        line.enabled = true;
+        line.SetPosition(0, pos);
+        line.SetPosition(1, end);
+    }
+
     void TurnOffLines(int x, int y)
     {
         LineRenderer line = Db_LineGrid[x, y];
         line.enabled = false;
+    }
+
+    void TurnOffFaceVelocity(int x, int y, int group)
+    {
+        foreach (LineRenderer vel in Db_VelocitiesGrid[x, y])
+        {
+            vel.enabled = false;
+        }
+    }
+
+    void PotentialColor(int groupNum, Color color)
+    {
+        CC_GroupGrid group = GroupGridList[groupNum];
+        CC_GridCell[,] grid = group.Grid;
+
+        float max = -Mathf.Infinity;
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                if (grid[x, y].Potential > max)
+                    max = grid[x, y].Potential;
+            }
+        }
+
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                float mult = grid[x, y].Potential / max;
+                Db_MeshGrid[x, y].material.color = color * mult;
+            }
+        }
+    }
+
+    void SpeedColor(int groupNum, Color color)
+    {
+        CC_GroupGrid group = GroupGridList[groupNum];
+        CC_GridCell[,] grid = group.Grid;
+
+        float max = -Mathf.Infinity;
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                if (grid[x, y].Speed > max)
+                    max = grid[x, y].Speed;
+            }
+        }
+
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                float mult = (max + 0.1f - max- grid[x, y].Speed) / max;
+                Db_MeshGrid[x, y].material.color = color * mult;
+            }
+        }
+    }
+
+    void UnitCostColor(int groupNum, Color color)
+    {
+        CC_GroupGrid group = GroupGridList[groupNum];
+        CC_GridCell[,] grid = group.Grid;
+
+        float max = -Mathf.Infinity;
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                if (grid[x, y].UnitCost > max && grid[x, y].UnitCost < Mathf.Infinity)
+                    max = grid[x, y].UnitCost;
+            }
+        }
+
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                float mult = (max + 0.1f - grid[x, y].UnitCost) / max;
+                Db_MeshGrid[x, y].material.color = color * mult;
+            }
+        }
+    }
+
+    void DensityColor(Color color)
+    {
+        float max = -Mathf.Infinity;
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                if (GlobalGrid[x, y].Density > max)
+                    max = GlobalGrid[x, y].Density;
+            }
+        }
+
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                float mult = GlobalGrid[x, y].Density / max;
+                Db_MeshGrid[x, y].material.color = color * mult;
+            }
+        }
     }
 
     void Debug()
@@ -142,7 +316,16 @@ public partial class CC_Grid {
 
         if (on == true)
         {
-            for (int x = 0; x < Width; x++)
+            if (colorType == DB_Color.Potential)
+                PotentialColor(CCGroup, Color.blue);
+            else if (colorType == DB_Color.Density)
+                DensityColor(Color.gray);
+            else if (colorType == DB_Color.Speed)
+                SpeedColor(CCGroup, Color.red);
+            else if (colorType == DB_Color.UnitCost)
+                UnitCostColor(CCGroup, Color.yellow);
+
+                for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
                 {
@@ -185,11 +368,26 @@ public partial class CC_Grid {
                         //east = group[x, y].East.Speed.ToString("F2");
                         debug = group[x, y].Speed.ToString("F2");
                     }
+                    else if (textType == DB_Text.PotentialGradients)
+                    {
+                        CC_GridCell[,] group = GroupGridList[CCGroup].Grid;
+                        north = group[x, y].North.PotentialGradient.ToString("F2");
+                        south = group[x, y].South.PotentialGradient.ToString("F2");
+                        west = group[x, y].West.PotentialGradient.ToString("F2");
+                        east = group[x, y].East.PotentialGradient.ToString("F2");
+                    }
 
                     if (lineType == DB_Line.AverageVelocity)
                         DrawTileVelocity(x, y);
+                    else if (lineType == DB_Line.CellVelocity)
+                        DrawCellTotalVelocity(x, y, CCGroup);
                     else
                         TurnOffLines(x, y);
+
+                    if (DebugManager.Instance.CellFaceVelocities == true)
+                        DrawFaceVelocity(x, y, CCGroup);
+                    else
+                        TurnOffFaceVelocity(x, y, CCGroup);
 
                     Db_TextGrid[x, y][0].text = debug;
                     Db_TextGrid[x, y][1].text = north;
